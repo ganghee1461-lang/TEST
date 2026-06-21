@@ -11,447 +11,158 @@
   <meta name="apple-mobile-web-app-title" content="오답노트" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --primary: #4f46e5;
-      --primary-light: #eef2ff;
-      --danger: #ef4444;
-      --danger-light: #fef2f2;
-      --success: #10b981;
-      --success-light: #ecfdf5;
-      --border: #e5e7eb;
-      --text: #111827;
-      --muted: #6b7280;
-      --bg: #f9fafb;
-      --card: #ffffff;
-      --radius: 12px;
+      --primary: #4f46e5; --primary-light: #eef2ff;
+      --danger: #ef4444; --danger-light: #fef2f2;
+      --success: #10b981; --success-light: #ecfdf5;
+      --warn: #f59e0b; --warn-light: #fffbeb;
+      --border: #e5e7eb; --text: #111827; --muted: #6b7280;
+      --bg: #f9fafb; --card: #ffffff; --radius: 12px;
     }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    header {
-      background: var(--primary);
-      color: #fff;
-      padding: 12px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(79,70,229,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
+    /* ── Header ── */
+    header { background: var(--primary); color: #fff; padding: 12px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(79,70,229,0.3); display: flex; align-items: center; justify-content: space-between; }
     header h1 { font-size: 1.1rem; font-weight: 700; }
-
-    #sync-status {
-      font-size: 0.78rem;
-      opacity: 0.85;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
-    }
-
+    #sync-status { font-size: 0.78rem; opacity: 0.85; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #86efac; flex-shrink: 0; }
     .dot.syncing { background: #fde68a; animation: pulse 1s infinite; }
     .dot.error { background: #fca5a5; }
-
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
+    /* ── Layout ── */
     .container { max-width: 720px; margin: 0 auto; padding: 16px; }
-
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
+    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
     .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--primary); }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
+    /* ── Form ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
-
     .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
     .form-group:last-of-type { margin-bottom: 0; }
-
     label { font-size: 0.8rem; font-weight: 500; color: var(--muted); }
-
-    input, select, textarea {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.15s;
-      width: 100%;
-      font-family: inherit;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-    }
-
+    input, select, textarea { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; outline: none; transition: border-color 0.15s; width: 100%; font-family: inherit; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
     textarea { resize: vertical; min-height: 72px; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-    .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
-
-    .filter-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .filter-bar select, .filter-bar input { flex: 1; min-width: 120px; max-width: 200px; }
-
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 99px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .badge-red { background: var(--danger-light); color: var(--danger); }
-    .badge-orange { background: #fff7ed; color: #ea580c; }
-    .badge-purple { background: var(--primary-light); color: var(--primary); }
-
-    .wrong-item.count-2 .q-number { background: #fff7ed; color: #ea580c; }
-    .wrong-item.count-3 .q-number { background: var(--danger-light); color: var(--danger); }
-
-    .btn-count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      border: none;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      flex-shrink: 0;
-      background: #f3f4f6;
-      color: var(--muted);
-      transition: background 0.15s, transform 0.1s;
-      line-height: 1;
-    }
-    .btn-count:hover { background: var(--border); }
-    .btn-count:active { transform: scale(0.9); }
-
-    .wrong-list { display: flex; flex-direction: column; gap: 12px; }
-
-    .wrong-item {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: box-shadow 0.15s;
-    }
-
-    .wrong-item:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-
-    .wrong-item-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 16px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .wrong-item-header:hover { background: var(--bg); }
-
-    .q-number {
-      width: 36px; height: 36px;
-      background: var(--primary-light);
-      color: var(--primary);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700;
-      font-size: 0.9rem;
-      flex-shrink: 0;
-    }
-
-    .q-info { flex: 1; min-width: 0; }
-
-    .q-title {
-      font-weight: 600;
-      font-size: 0.95rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .q-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-
-    .chevron { color: var(--muted); transition: transform 0.2s; font-size: 1rem; flex-shrink: 0; }
-    .wrong-item.open .chevron { transform: rotate(180deg); }
-
-    .wrong-item-body {
-      display: none;
-      padding: 0 16px 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    .wrong-item.open .wrong-item-body { display: block; }
-
-    .field-block { margin-top: 12px; }
-
-    .field-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 5px;
-    }
-
-    .field-text {
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
-
-    .field-empty { color: var(--muted); font-style: italic; font-size: 0.85rem; }
-
-    .item-actions { display: flex; gap: 8px; margin-top: 14px; }
-
-    .edit-form { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
-
-    .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
-    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
-    .empty p { font-size: 0.9rem; }
-
-    #toast {
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #1f2937;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 99px;
-      font-size: 0.88rem;
-      font-weight: 500;
-      transition: transform 0.3s;
-      z-index: 9999;
-      white-space: nowrap;
-    }
-
-    #toast.show { transform: translateX(-50%) translateY(0); }
-
-    .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
-
-    .tab {
-      padding: 10px 18px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      background: none;
-      color: var(--muted);
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      transition: color 0.15s;
-    }
-
-    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.2s infinite;
-      border-radius: 8px;
-      height: 64px;
-    }
-
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-    /* 퀴즈 스타일 */
-    .quiz-question {
-      font-size: 0.95rem;
-      line-height: 1.65;
-      font-weight: 500;
-      color: var(--text);
-      margin-top: 12px;
-      margin-bottom: 12px;
-      white-space: pre-wrap;
-    }
-
-    .quiz-choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-
-    .choice-btn {
-      text-align: left;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1.5px solid var(--border);
-      background: #fff;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      width: 100%;
-      font-family: inherit;
-      line-height: 1.5;
-    }
-
-    .choice-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); }
-    .choice-btn.correct { border-color: var(--success) !important; background: var(--success-light) !important; color: #065f46; font-weight: 600; }
-    .choice-btn.wrong { border-color: var(--danger) !important; background: var(--danger-light) !important; color: #991b1b; }
-    .choice-btn:disabled { cursor: default; }
-
-    .quiz-result {
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 8px;
-      display: none;
-    }
-    .quiz-result.ok { background: var(--success-light); color: #065f46; display: block; }
-    .quiz-result.fail { background: var(--danger-light); color: #991b1b; display: block; }
-
-    .explanation-wrap {
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 0.9rem;
-      line-height: 1.65;
-      white-space: pre-wrap;
-      color: var(--text);
-      margin-top: 4px;
-    }
-
-    .btn-retry {
-      margin-top: 8px;
-      padding: 6px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #fff;
-      font-size: 0.82rem;
-      cursor: pointer;
-      color: var(--muted);
-    }
-    .btn-retry:hover { background: var(--bg); }
-
-    /* 선지 입력 그리드 */
     .choices-grid { display: flex; flex-direction: column; gap: 6px; }
     .choice-input-row { display: flex; align-items: center; gap: 8px; }
     .choice-num { width: 22px; font-size: 0.85rem; font-weight: 600; color: var(--muted); flex-shrink: 0; text-align: center; }
 
-    /* 플로팅 토글 버튼 */
-    #layout-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 20px;
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      z-index: 200;
-      box-shadow: 0 2px 12px rgba(79,70,229,0.4);
-      display: flex; align-items: center; justify-content: center;
-      transition: transform 0.15s;
-    }
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn-count { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; flex-shrink: 0; background: #f3f4f6; color: var(--muted); transition: background 0.15s, transform 0.1s; line-height: 1; }
+    .btn-count:hover { background: var(--border); }
+    .btn-count:active { transform: scale(0.9); }
+
+    /* ── Filter / Badge ── */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+    .filter-bar select, .filter-bar input { flex: 1; min-width: 100px; max-width: 200px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
+    .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-orange { background: #fff7ed; color: #ea580c; }
+    .badge-purple { background: var(--primary-light); color: var(--primary); }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+    .tab { padding: 10px 16px; font-size: 0.88rem; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s; white-space: nowrap; }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── Skeleton ── */
+    .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 8px; height: 64px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ── Wrong list (오답목록) ── */
+    .wrong-list { display: flex; flex-direction: column; gap: 12px; }
+    .wrong-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.15s; }
+    .wrong-item:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .wrong-item.count-2 .q-number { background: #fff7ed; color: #ea580c; }
+    .wrong-item.count-3 .q-number { background: var(--danger-light); color: var(--danger); }
+    .wrong-item-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; user-select: none; }
+    .wrong-item-header:hover { background: var(--bg); }
+    .q-number { width: 36px; height: 36px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+    .q-info { flex: 1; min-width: 0; }
+    .q-title { font-weight: 600; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .q-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .chevron { color: var(--muted); transition: transform 0.2s; font-size: 1rem; flex-shrink: 0; }
+    .wrong-item.open .chevron { transform: rotate(180deg); }
+    .wrong-item-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+    .wrong-item.open .wrong-item-body { display: block; }
+
+    /* ── Study view (오답목록 펼쳤을 때) ── */
+    .study-question { font-size: 0.95rem; line-height: 1.65; font-weight: 500; margin: 14px 0 12px; white-space: pre-wrap; }
+    .study-choices { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .study-choice { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.5; border: 1.5px solid var(--border); background: #fff; }
+    .study-choice.is-answer { border-color: var(--success); background: var(--success-light); font-weight: 600; color: #065f46; }
+    .study-choice-num { flex-shrink: 0; font-weight: 700; min-width: 18px; }
+    .explanation-box { background: var(--bg); border-radius: 8px; padding: 12px 14px; font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; border-left: 3px solid var(--primary); }
+    .section-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+
+    /* ── Edit form ── */
+    .edit-form { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .item-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+    /* ── Quiz mode (다시 풀어보기) ── */
+    #quiz-area { max-width: 600px; margin: 0 auto; }
+    .quiz-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .quiz-progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .quiz-progress-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.3s; }
+    .quiz-progress-text { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+    .quiz-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; }
+    .quiz-round-badge { font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 12px; }
+    .quiz-question-text { font-size: 1rem; line-height: 1.7; font-weight: 500; margin-bottom: 20px; white-space: pre-wrap; }
+    .quiz-choices { display: flex; flex-direction: column; gap: 10px; }
+    .quiz-choice-btn { text-align: left; padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; width: 100%; font-family: inherit; line-height: 1.5; display: flex; gap: 10px; align-items: flex-start; }
+    .quiz-choice-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); }
+    .quiz-choice-btn.correct { border-color: var(--success) !important; background: var(--success-light) !important; color: #065f46; font-weight: 600; }
+    .quiz-choice-btn.wrong { border-color: var(--danger) !important; background: var(--danger-light) !important; color: #991b1b; }
+    .quiz-choice-btn:disabled { cursor: default; }
+    .quiz-choice-num { flex-shrink: 0; font-weight: 700; }
+    .quiz-result-box { margin-top: 16px; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 0.92rem; }
+    .quiz-result-box.ok { background: var(--success-light); color: #065f46; }
+    .quiz-result-box.fail { background: var(--danger-light); color: #991b1b; }
+    .quiz-explanation { margin-top: 12px; background: var(--bg); border-radius: 8px; padding: 14px; font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; border-left: 3px solid var(--primary); }
+    .quiz-nav { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+    /* ── Quiz result summary ── */
+    .quiz-summary { text-align: center; padding: 32px 20px; }
+    .quiz-summary-score { font-size: 3rem; font-weight: 700; color: var(--primary); margin: 16px 0 8px; }
+    .quiz-summary-label { font-size: 1rem; color: var(--muted); margin-bottom: 24px; }
+    .quiz-missed-list { text-align: left; margin-top: 20px; }
+    .quiz-missed-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--danger-light); border-radius: 8px; margin-bottom: 6px; font-size: 0.88rem; }
+
+    /* ── Empty / Toast ── */
+    .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty p { font-size: 0.9rem; }
+    #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1f2937; color: #fff; padding: 10px 20px; border-radius: 99px; font-size: 0.88rem; font-weight: 500; transition: transform 0.3s; z-index: 9999; white-space: nowrap; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Floating toggle ── */
+    #layout-toggle { position: fixed; bottom: 24px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 1.2rem; cursor: pointer; z-index: 200; box-shadow: 0 2px 12px rgba(79,70,229,0.4); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
     #layout-toggle:active { transform: scale(0.9); }
 
-    /* 가로모드 레이아웃 */
-    body.landscape-mode .container {
-      max-width: 100%;
-      padding: 0;
-      display: flex;
-      height: calc(100vh - 48px);
-      overflow: hidden;
-    }
-
+    /* ── Landscape mode ── */
+    body.landscape-mode .container { max-width: 100%; padding: 0; display: flex; height: calc(100vh - 48px); overflow: hidden; }
     body.landscape-mode header { padding: 8px 16px; }
     body.landscape-mode header h1 { font-size: 1rem; }
     body.landscape-mode .tabs { display: none; }
-
-    #landscape-left {
-      display: none;
-      width: 320px;
-      min-width: 260px;
-      border-right: 1px solid var(--border);
-      overflow-y: auto;
-      padding: 12px;
-      flex-shrink: 0;
-    }
-
-    #landscape-right {
-      display: none;
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-    }
-
-    body.landscape-mode #landscape-left,
-    body.landscape-mode #landscape-right { display: block; }
-
-    body.landscape-mode #tab-add,
-    body.landscape-mode #tab-list { display: none !important; }
-
+    #landscape-left { display: none; width: 320px; min-width: 260px; border-right: 1px solid var(--border); overflow-y: auto; padding: 12px; flex-shrink: 0; }
+    #landscape-right { display: none; flex: 1; overflow-y: auto; padding: 20px; }
+    body.landscape-mode #landscape-left, body.landscape-mode #landscape-right { display: block; }
+    body.landscape-mode #tab-add, body.landscape-mode #tab-list, body.landscape-mode #tab-quiz { display: none !important; }
     body.landscape-mode .wrong-item-body { display: none !important; }
-
-    body.landscape-mode .wrong-item.selected {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(79,70,229,0.2);
-    }
-
+    body.landscape-mode .wrong-item.selected { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79,70,229,0.2); }
     .detail-panel { height: 100%; }
-    .detail-empty {
-      display: flex; align-items: center; justify-content: center;
-      height: 200px; color: var(--muted); font-size: 0.95rem;
-    }
-    .detail-header {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 16px; padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .detail-header .q-number { width: 44px; height: 44px; font-size: 1rem; }
-    .detail-header .q-title { font-size: 1.05rem; font-weight: 600; }
-    .detail-header .q-meta { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
+    .detail-empty { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); font-size: 0.95rem; }
   </style>
 </head>
 <body>
@@ -465,13 +176,13 @@
 </header>
 
 <div class="container">
-
   <div class="tabs">
     <button class="tab active" onclick="switchTab('add')">문제 추가</button>
     <button class="tab" onclick="switchTab('list')">오답 목록</button>
+    <button class="tab" onclick="switchTab('quiz')">다시 풀어보기</button>
   </div>
 
-  <!-- 추가 탭 -->
+  <!-- ── 문제 추가 탭 ── -->
   <div id="tab-add" class="tab-content active">
     <div class="card">
       <h2>✏️ 오답 입력</h2>
@@ -487,7 +198,7 @@
       </div>
       <div class="form-group">
         <label>문제 내용</label>
-        <textarea id="inp-question" placeholder="문제 전체 내용을 입력하세요" style="min-height:88px"></textarea>
+        <textarea id="inp-question" placeholder="문제 전체 내용" style="min-height:88px"></textarea>
       </div>
       <div class="form-group">
         <label>선지 (4개)</label>
@@ -522,340 +233,250 @@
     </div>
   </div>
 
-  <!-- 목록 탭 -->
+  <!-- ── 오답 목록 탭 ── -->
   <div id="tab-list" class="tab-content">
     <div class="filter-bar">
-      <select id="filter-round" onchange="renderList()">
-        <option value="">전체 회차</option>
-      </select>
+      <select id="filter-round" onchange="renderList()"><option value="">전체 회차</option></select>
       <select id="filter-count" onchange="renderList()">
         <option value="">전체 횟수</option>
         <option value="1">1회</option>
         <option value="2">2회</option>
         <option value="3">3회 이상</option>
       </select>
-      <input type="text" id="filter-search" placeholder="검색..." oninput="renderList()" style="max-width:160px" />
+      <input type="text" id="filter-search" placeholder="검색..." oninput="renderList()" style="max-width:150px" />
     </div>
     <div id="wrong-list" class="wrong-list"></div>
   </div>
 
-  <!-- 가로모드 패널 -->
-  <div id="landscape-left"></div>
-  <div id="landscape-right">
-    <div class="detail-panel">
-      <div class="detail-empty">목록에서 문제를 선택하세요</div>
+  <!-- ── 다시 풀어보기 탭 ── -->
+  <div id="tab-quiz" class="tab-content">
+    <div id="quiz-setup">
+      <div class="card">
+        <h2>🎯 다시 풀어보기</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>회차 선택</label>
+            <select id="quiz-round"><option value="">전체 회차</option></select>
+          </div>
+          <div class="form-group">
+            <label>틀린 횟수</label>
+            <select id="quiz-count">
+              <option value="">전체</option>
+              <option value="1">1회</option>
+              <option value="2">2회</option>
+              <option value="3">3회 이상</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>출제 순서</label>
+          <select id="quiz-order">
+            <option value="seq">회차·번호 순서대로</option>
+            <option value="wrong">많이 틀린 순서</option>
+            <option value="rand">랜덤</option>
+          </select>
+        </div>
+        <div id="quiz-count-preview" style="font-size:0.85rem;color:var(--muted);margin-bottom:16px"></div>
+        <button class="btn btn-primary" onclick="startQuiz()">시작하기</button>
+      </div>
     </div>
+
+    <div id="quiz-area" style="display:none">
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-prog-fill"></div></div>
+        <span class="quiz-progress-text" id="quiz-prog-text"></span>
+      </div>
+      <div class="quiz-card" id="quiz-card"></div>
+    </div>
+
+    <div id="quiz-result" style="display:none"></div>
   </div>
 
+  <!-- ── 가로모드 패널 ── -->
+  <div id="landscape-left"></div>
+  <div id="landscape-right">
+    <div class="detail-panel"><div class="detail-empty">목록에서 문제를 선택하세요</div></div>
+  </div>
 </div>
 
 <div id="toast"></div>
-<button id="layout-toggle" onclick="toggleLandscape()" title="가로/세로 모드 전환">⇄</button>
+<button id="layout-toggle" onclick="toggleLandscape()" title="가로/세로 전환">⇄</button>
 
 <script>
+const NUMS = ['①','②','③','④'];
 let data = [];
 let currentSha = null;
 let saveTimer = null;
 
+/* ── Sync ── */
 function setSyncStatus(state, text) {
   document.getElementById('sync-text').textContent = text;
   const dot = document.getElementById('sync-dot');
-  dot.className = 'dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+  dot.className = 'dot' + (state==='syncing'?' syncing':state==='error'?' error':'');
 }
-
 async function fetchData() {
-  setSyncStatus('syncing', '불러오는 중...');
+  setSyncStatus('syncing','불러오는 중...');
   try {
-    const res = await fetch('/api');
-    if (!res.ok) throw new Error();
-    const json = await res.json();
-    data = json.data || [];
-    currentSha = json.sha || null;
-    setSyncStatus('ok', '동기화됨');
-  } catch {
-    setSyncStatus('error', '불러오기 실패');
-    toast('데이터를 불러오지 못했습니다.');
-  }
+    const r = await fetch('/api');
+    if (!r.ok) throw new Error();
+    const j = await r.json();
+    data = j.data||[]; currentSha = j.sha||null;
+    setSyncStatus('ok','동기화됨');
+  } catch { setSyncStatus('error','불러오기 실패'); toast('데이터를 불러오지 못했습니다.'); }
 }
-
 async function pushData() {
-  setSyncStatus('syncing', '저장 중...');
+  setSyncStatus('syncing','저장 중...');
   try {
-    const res = await fetch('/api', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data, sha: currentSha }),
-    });
-    if (!res.ok) throw new Error();
-    const json = await res.json();
-    currentSha = json.sha;
-    setSyncStatus('ok', '동기화됨');
-  } catch {
-    setSyncStatus('error', '저장 실패');
-    toast('저장에 실패했습니다. 다시 시도해주세요.');
-  }
+    const r = await fetch('/api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data,sha:currentSha})});
+    if (!r.ok) throw new Error();
+    const j = await r.json(); currentSha = j.sha;
+    setSyncStatus('ok','동기화됨');
+  } catch { setSyncStatus('error','저장 실패'); toast('저장에 실패했습니다.'); }
 }
-
-function save() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(pushData, 800);
-}
-
-function genId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-}
-
+function save() { clearTimeout(saveTimer); saveTimer = setTimeout(pushData, 800); }
+function genId() { return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function toast(msg) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
 }
 
+/* ── Tabs ── */
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['add','list'][i] === name);
-  });
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'list') { updateRoundFilter(); renderList(); }
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['add','list','quiz'][i]===name));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name==='list') { updateRoundFilter(); renderList(); }
+  if (name==='quiz') { updateQuizRoundFilter(); updateQuizPreview(); }
 }
 
-function getChoicesFromForm(prefix) {
-  return [1,2,3,4].map(i => {
-    const el = document.getElementById(`${prefix}c${i}`);
-    return el ? el.value.trim() : '';
-  });
-}
+/* ── Escape ── */
+function esc(s='') { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+/* ── Add Entry ── */
 function addEntry() {
   const round = document.getElementById('inp-round').value.trim();
-  const qnum = document.getElementById('inp-qnum').value.trim();
-  const count = parseInt(document.getElementById('inp-count').value) || 1;
+  const qnum  = document.getElementById('inp-qnum').value.trim();
+  const count = parseInt(document.getElementById('inp-count').value)||1;
   const question = document.getElementById('inp-question').value.trim();
-  const choices = getChoicesFromForm('inp-');
-  const answer = parseInt(document.getElementById('inp-answer').value) || null;
+  const choices = [1,2,3,4].map(i=>document.getElementById('inp-c'+i).value.trim());
+  const answer = parseInt(document.getElementById('inp-answer').value)||null;
   const explanation = document.getElementById('inp-explanation').value.trim();
-
   if (!round) { toast('회차를 입력해주세요.'); return; }
-  if (!qnum) { toast('문제 번호를 입력해주세요.'); return; }
-
-  const existing = data.find(d => d.round === round && String(d.qnum) === String(qnum));
+  if (!qnum)  { toast('문제 번호를 입력해주세요.'); return; }
+  const existing = data.find(d=>d.round===round&&String(d.qnum)===String(qnum));
   if (existing) {
     existing.count += count;
     if (question) existing.question = question;
-    if (choices.some(c => c)) existing.choices = choices;
+    if (choices.some(c=>c)) existing.choices = choices;
     if (answer) existing.answer = answer;
     if (explanation) existing.explanation = explanation;
     delete existing.note;
-    toast(`${round} ${qnum}번 — 틀린 횟수 ${existing.count}회로 업데이트`);
+    toast(`${round} ${qnum}번 — ${existing.count}회로 업데이트`);
   } else {
-    data.push({ id: genId(), round, qnum, count, question, choices, answer, explanation, createdAt: Date.now() });
+    data.push({id:genId(),round,qnum,count,question,choices,answer,explanation,createdAt:Date.now()});
     toast('오답이 추가됐습니다.');
   }
-
   save();
-  ['inp-qnum','inp-question','inp-c1','inp-c2','inp-c3','inp-c4','inp-explanation'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  document.getElementById('inp-count').value = '1';
-  document.getElementById('inp-answer').value = '';
+  ['inp-qnum','inp-question','inp-c1','inp-c2','inp-c3','inp-c4','inp-explanation'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('inp-count').value='1';
+  document.getElementById('inp-answer').value='';
   document.getElementById('inp-qnum').focus();
 }
 
+/* ── Round filter ── */
+function getRounds() { return [...new Set(data.map(d=>d.round))].sort(); }
 function updateRoundFilter() {
-  const rounds = [...new Set(data.map(d => d.round))].sort();
   const sel = document.getElementById('filter-round');
   const cur = sel.value;
   sel.innerHTML = '<option value="">전체 회차</option>';
-  rounds.forEach(r => {
-    const o = document.createElement('option');
-    o.value = r; o.textContent = r;
-    if (r === cur) o.selected = true;
-    sel.appendChild(o);
-  });
+  getRounds().forEach(r=>{ const o=document.createElement('option'); o.value=r; o.textContent=r; if(r===cur)o.selected=true; sel.appendChild(o); });
+}
+function updateQuizRoundFilter() {
+  const sel = document.getElementById('quiz-round');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">전체 회차</option>';
+  getRounds().forEach(r=>{ const o=document.createElement('option'); o.value=r; o.textContent=r; if(r===cur)o.selected=true; sel.appendChild(o); });
 }
 
-function filteredData() {
-  const round = document.getElementById('filter-round').value;
-  const countF = document.getElementById('filter-count').value;
-  const search = document.getElementById('filter-search').value.toLowerCase();
-
-  return data.filter(d => {
-    if (round && d.round !== round) return false;
-    if (countF === '1' && d.count !== 1) return false;
-    if (countF === '2' && d.count !== 2) return false;
-    if (countF === '3' && d.count < 3) return false;
+/* ── Filtered data ── */
+function filteredData(roundSel, countSel, search='') {
+  return data.filter(d=>{
+    if (roundSel && d.round!==roundSel) return false;
+    const c = d.count||1;
+    if (countSel==='1'&&c!==1) return false;
+    if (countSel==='2'&&c!==2) return false;
+    if (countSel==='3'&&c<3) return false;
     if (search) {
-      const hay = [d.qnum, d.round, d.question, d.explanation, d.note, ...(d.choices||[])].join(' ').toLowerCase();
-      if (!hay.includes(search)) return false;
+      const hay=[d.qnum,d.round,d.question,d.explanation,d.note,...(d.choices||[])].join(' ').toLowerCase();
+      if (!hay.includes(search.toLowerCase())) return false;
     }
     return true;
-  }).sort((a, b) => {
-    if (a.round < b.round) return -1;
-    if (a.round > b.round) return 1;
-    return parseInt(a.qnum) - parseInt(b.qnum);
-  });
+  }).sort((a,b)=>{ if(a.round<b.round)return -1; if(a.round>b.round)return 1; return parseInt(a.qnum)-parseInt(b.qnum); });
 }
 
-function buildQuizHtml(d, ns) {
-  // ns = namespace prefix for element IDs to avoid collision
-  const hasChoices = d.choices && d.choices.some(c => c);
-  const nums = ['①','②','③','④'];
-  const choicesHtml = hasChoices ? `
-    <div class="quiz-choices" id="qc-${ns}${d.id}">
-      ${d.choices.map((c, i) => c ? `
-        <button class="choice-btn" onclick="checkAnswer('${d.id}','${ns}',${i+1})" data-num="${i+1}">
-          ${nums[i]} ${escHtml(c)}
-        </button>` : '').join('')}
-    </div>` : '';
-  const questionHtml = d.question ? `<div class="quiz-question">${escHtml(d.question)}</div>` : '';
-  const resultHtml = hasChoices ? `<div class="quiz-result" id="qr-${ns}${d.id}"></div>` : '';
-  const expHtml = d.explanation ? `
-    <div id="exp-${ns}${d.id}" style="display:${hasChoices ? 'none' : 'block'}">
-      <div class="field-label" style="margin-top:12px">해설</div>
-      <div class="explanation-wrap">${escHtml(d.explanation)}</div>
-    </div>` : '';
-  const retryHtml = hasChoices ? `<button class="btn-retry" id="retry-${ns}${d.id}" onclick="retryQuiz('${d.id}','${ns}')" style="display:none">다시 풀기</button>` : '';
-
-  return `${questionHtml}${choicesHtml}${resultHtml}${expHtml}${retryHtml}`;
-}
-
-function checkAnswer(id, ns, chosen) {
-  const d = data.find(x => x.id === id);
-  if (!d || !d.answer) return;
-
-  const btns = document.querySelectorAll(`#qc-${ns}${id} .choice-btn`);
-  btns.forEach(btn => {
-    btn.disabled = true;
-    const num = parseInt(btn.dataset.num);
-    if (num === d.answer) btn.classList.add('correct');
-    else if (num === chosen) btn.classList.add('wrong');
-  });
-
-  const result = document.getElementById(`qr-${ns}${id}`);
-  const isCorrect = chosen === d.answer;
-  if (result) {
-    result.className = 'quiz-result ' + (isCorrect ? 'ok' : 'fail');
-    result.textContent = isCorrect ? '✓ 정답입니다!' : `✗ 오답입니다. 정답: ${d.answer}번`;
-  }
-
-  const exp = document.getElementById(`exp-${ns}${id}`);
-  if (exp) exp.style.display = 'block';
-
-  const retry = document.getElementById(`retry-${ns}${id}`);
-  if (retry) retry.style.display = 'inline-block';
-
-  if (!isCorrect) {
-    const idx = data.findIndex(x => x.id === id);
-    if (idx !== -1) {
-      data[idx].count += 1;
-      save();
-    }
-  }
-}
-
-function retryQuiz(id, ns) {
-  const d = data.find(x => x.id === id);
-  if (!d) return;
-
-  const btns = document.querySelectorAll(`#qc-${ns}${id} .choice-btn`);
-  btns.forEach(btn => {
-    btn.disabled = false;
-    btn.classList.remove('correct', 'wrong');
-  });
-
-  const result = document.getElementById(`qr-${ns}${id}`);
-  if (result) { result.className = 'quiz-result'; result.textContent = ''; }
-
-  const exp = document.getElementById(`exp-${ns}${id}`);
-  if (exp) exp.style.display = 'none';
-
-  const retry = document.getElementById(`retry-${ns}${id}`);
-  if (retry) retry.style.display = 'none';
-}
-
+/* ── Render list (오답목록 - 공부모드) ── */
 function renderList() {
-  const list = filteredData();
+  const round = document.getElementById('filter-round').value;
+  const countF = document.getElementById('filter-count').value;
+  const search = document.getElementById('filter-search').value;
+  const list = filteredData(round, countF, search);
   const el = document.getElementById('wrong-list');
+  if (!list.length) { el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><p>표시할 오답이 없습니다.</p></div>`; return; }
 
-  if (!list.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>표시할 오답이 없습니다.</p></div>`;
-    return;
-  }
+  el.innerHTML = list.map(d=>{
+    const titleText = d.question ? (d.question.length>42?d.question.slice(0,42)+'…':d.question) : (d.note||`${d.qnum}번 문제`);
+    const cc = d.count>=3?'count-3':d.count===2?'count-2':'count-1';
+    const bc = d.count>=3?'badge-red':d.count===2?'badge-orange':'badge-purple';
+    const hasChoices = d.choices&&d.choices.some(c=>c);
 
-  el.innerHTML = list.map(d => {
-    const titleText = d.question
-      ? (d.question.length > 40 ? d.question.slice(0, 40) + '…' : d.question)
-      : (d.note || `${d.qnum}번 문제`);
+    const choicesHtml = hasChoices ? `
+      <div class="study-choices">
+        ${d.choices.map((c,i)=>c?`<div class="study-choice${d.answer===i+1?' is-answer':''}"><span class="study-choice-num">${NUMS[i]}</span><span>${esc(c)}</span></div>`:'').join('')}
+      </div>` : '';
 
-    const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
-    const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
-
-    const legacyContent = d.note && !d.question ? `
-      <div class="field-block"><div class="field-label">메모</div><div class="field-text">${escHtml(d.note)}</div></div>` : '';
-
-    const quizContent = !legacyContent ? buildQuizHtml(d, 'l') : '';
-
-    const editChoicesHtml = [1,2,3,4].map(i => `
+    const editChoicesHtml = [1,2,3,4].map(i=>`
       <div class="choice-input-row">
-        <span class="choice-num">${['①','②','③','④'][i-1]}</span>
-        <input type="text" id="ec${i}-${d.id}" value="${escAttr((d.choices||[])[i-1]||'')}" placeholder="${i}번 선지" />
+        <span class="choice-num">${NUMS[i-1]}</span>
+        <input type="text" id="ec${i}-${d.id}" value="${esc((d.choices||[])[i-1]||'')}" placeholder="${i}번 선지" />
       </div>`).join('');
 
     return `
-    <div class="wrong-item ${countClass}" id="item-${d.id}">
+    <div class="wrong-item ${cc}" id="item-${d.id}">
       <div class="wrong-item-header" onclick="toggleItem('${d.id}')">
-        <div class="q-number">${escHtml(d.qnum)}</div>
+        <div class="q-number">${esc(d.qnum)}</div>
         <div class="q-info">
-          <div class="q-title">${escHtml(titleText)}</div>
-          <div class="q-meta">${escHtml(d.round)} · ${escHtml(d.qnum)}번</div>
+          <div class="q-title">${esc(titleText)}</div>
+          <div class="q-meta">${esc(d.round)} · ${esc(d.qnum)}번</div>
         </div>
-        <span class="badge ${badgeClass}">✗ ${d.count}회</span>
+        <span class="badge ${bc}">✗ ${d.count}회</span>
         <button class="btn-count" onclick="incrementCount(event,'${d.id}')" title="+1">+</button>
         <span class="chevron">▼</span>
       </div>
       <div class="wrong-item-body">
         <div id="note-view-${d.id}">
-          ${legacyContent || quizContent}
+          ${d.question?`<div class="study-question">${esc(d.question)}</div>`:''}
+          ${choicesHtml}
+          ${(d.explanation||d.note)?`<div class="section-label">해설</div><div class="explanation-box">${esc(d.explanation||d.note)}</div>`:''}
+          ${!d.question&&!d.explanation&&!d.note?'<div style="color:var(--muted);font-size:0.85rem;margin-top:12px">내용이 없습니다.</div>':''}
         </div>
         <div id="edit-form-${d.id}" class="edit-form" style="display:none">
           <div class="form-row">
-            <div class="form-group">
-              <label>회차</label>
-              <input type="text" id="er-${d.id}" value="${escAttr(d.round)}" />
-            </div>
-            <div class="form-group">
-              <label>문제 번호</label>
-              <input type="number" id="eq-${d.id}" value="${escAttr(d.qnum)}" min="1" />
-            </div>
+            <div class="form-group"><label>회차</label><input type="text" id="er-${d.id}" value="${esc(d.round)}" /></div>
+            <div class="form-group"><label>문제 번호</label><input type="number" id="eq-${d.id}" value="${esc(d.qnum)}" min="1" /></div>
           </div>
-          <div class="form-group">
-            <label>문제 내용</label>
-            <textarea id="eqt-${d.id}" style="min-height:80px">${escHtml(d.question || '')}</textarea>
-          </div>
-          <div class="form-group">
-            <label>선지</label>
-            <div class="choices-grid">${editChoicesHtml}</div>
-          </div>
+          <div class="form-group"><label>문제 내용</label><textarea id="eqt-${d.id}" style="min-height:80px">${esc(d.question||'')}</textarea></div>
+          <div class="form-group"><label>선지</label><div class="choices-grid">${editChoicesHtml}</div></div>
           <div class="form-row">
-            <div class="form-group">
-              <label>정답 번호</label>
+            <div class="form-group"><label>정답 번호</label>
               <select id="ea-${d.id}">
                 <option value="">선택</option>
-                ${[1,2,3,4].map(i => `<option value="${i}" ${d.answer==i?'selected':''}>${['①','②','③','④'][i-1]} ${i}번</option>`).join('')}
+                ${[1,2,3,4].map(i=>`<option value="${i}" ${d.answer==i?'selected':''}>${NUMS[i-1]} ${i}번</option>`).join('')}
               </select>
             </div>
-            <div class="form-group">
-              <label>틀린 횟수</label>
-              <input type="number" id="ec-${d.id}" value="${d.count}" min="1" max="99" />
-            </div>
+            <div class="form-group"><label>틀린 횟수</label><input type="number" id="ec-${d.id}" value="${d.count}" min="1" max="99" /></div>
           </div>
-          <div class="form-group">
-            <label>해설</label>
-            <textarea id="ee-${d.id}">${escHtml(d.explanation || d.note || '')}</textarea>
-          </div>
+          <div class="form-group"><label>해설</label><textarea id="ee-${d.id}">${esc(d.explanation||d.note||'')}</textarea></div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-primary btn-sm" onclick="saveEdit('${d.id}')">저장</button>
             <button class="btn btn-ghost btn-sm" onclick="cancelEdit('${d.id}')">취소</button>
@@ -870,218 +491,282 @@ function renderList() {
   }).join('');
 }
 
-function toggleItem(id) {
-  document.getElementById('item-' + id).classList.toggle('open');
-}
-
-function escHtml(s = '') {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function escAttr(s = '') { return escHtml(s); }
-
-function startEdit(id) {
-  document.getElementById('note-view-' + id).style.display = 'none';
-  document.getElementById('actions-' + id).style.display = 'none';
-  document.getElementById('edit-form-' + id).style.display = 'flex';
-}
-
-function cancelEdit(id) {
-  document.getElementById('note-view-' + id).style.display = 'block';
-  document.getElementById('actions-' + id).style.display = 'flex';
-  document.getElementById('edit-form-' + id).style.display = 'none';
-}
-
+function toggleItem(id) { document.getElementById('item-'+id).classList.toggle('open'); }
+function startEdit(id) { document.getElementById('note-view-'+id).style.display='none'; document.getElementById('actions-'+id).style.display='none'; document.getElementById('edit-form-'+id).style.display='flex'; }
+function cancelEdit(id) { document.getElementById('note-view-'+id).style.display='block'; document.getElementById('actions-'+id).style.display='flex'; document.getElementById('edit-form-'+id).style.display='none'; }
 function saveEdit(id) {
-  const idx = data.findIndex(d => d.id === id);
-  if (idx === -1) return;
-  data[idx].round = document.getElementById('er-' + id).value.trim();
-  data[idx].qnum = document.getElementById('eq-' + id).value.trim();
-  data[idx].count = parseInt(document.getElementById('ec-' + id).value) || 1;
-  data[idx].question = document.getElementById('eqt-' + id).value.trim();
-  data[idx].choices = [1,2,3,4].map(i => {
-    const el = document.getElementById(`ec${i}-${id}`);
-    return el ? el.value.trim() : '';
-  });
-  data[idx].answer = parseInt(document.getElementById('ea-' + id).value) || null;
-  data[idx].explanation = document.getElementById('ee-' + id).value.trim();
+  const idx = data.findIndex(d=>d.id===id);
+  if (idx===-1) return;
+  data[idx].round = document.getElementById('er-'+id).value.trim();
+  data[idx].qnum  = document.getElementById('eq-'+id).value.trim();
+  data[idx].count = parseInt(document.getElementById('ec-'+id).value)||1;
+  data[idx].question = document.getElementById('eqt-'+id).value.trim();
+  data[idx].choices = [1,2,3,4].map(i=>{ const el=document.getElementById('ec'+i+'-'+id); return el?el.value.trim():''; });
+  data[idx].answer = parseInt(document.getElementById('ea-'+id).value)||null;
+  data[idx].explanation = document.getElementById('ee-'+id).value.trim();
   delete data[idx].note;
-  save();
-  updateRoundFilter();
-  renderList();
-  toast('수정됐습니다.');
+  save(); updateRoundFilter(); renderList(); toast('수정됐습니다.');
 }
-
-function incrementCount(e, id) {
+function incrementCount(e,id) {
   e.stopPropagation();
-  const idx = data.findIndex(d => d.id === id);
-  if (idx === -1) return;
-  data[idx].count += 1;
-  save();
-  renderList();
-  toast(`${data[idx].qnum}번 — 틀린 횟수 ${data[idx].count}회`);
+  const idx = data.findIndex(d=>d.id===id);
+  if (idx===-1) return;
+  data[idx].count+=1; save(); renderList();
+  toast(`${data[idx].qnum}번 — ${data[idx].count}회`);
+}
+function deleteEntry(id) {
+  if (!confirm('이 오답을 삭제할까요?')) return;
+  data = data.filter(d=>d.id!==id); save(); updateRoundFilter(); renderList(); toast('삭제됐습니다.');
 }
 
-/* 가로모드 */
+/* ── Quiz mode ── */
+let quizQueue = [];
+let quizIndex = 0;
+let quizScore = 0;
+let quizMissed = [];
+let quizAnswered = false;
+
+function updateQuizPreview() {
+  const round  = document.getElementById('quiz-round').value;
+  const countF = document.getElementById('quiz-count').value;
+  const list = filteredData(round, countF).filter(d=>d.choices&&d.choices.some(c=>c)&&d.answer);
+  document.getElementById('quiz-count-preview').textContent = `풀 수 있는 문제: ${list.length}개`;
+}
+
+document.addEventListener('change', e=>{
+  if (['quiz-round','quiz-count','quiz-order'].includes(e.target.id)) updateQuizPreview();
+});
+
+function startQuiz() {
+  const round  = document.getElementById('quiz-round').value;
+  const countF = document.getElementById('quiz-count').value;
+  const order  = document.getElementById('quiz-order').value;
+  let list = filteredData(round, countF).filter(d=>d.choices&&d.choices.some(c=>c)&&d.answer);
+  if (!list.length) { toast('풀 수 있는 문제가 없습니다. (문제/선지/정답이 필요)'); return; }
+  if (order==='wrong') list = [...list].sort((a,b)=>b.count-a.count);
+  else if (order==='rand') list = list.sort(()=>Math.random()-0.5);
+  quizQueue = list;
+  quizIndex = 0;
+  quizScore = 0;
+  quizMissed = [];
+  quizAnswered = false;
+  document.getElementById('quiz-setup').style.display='none';
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-area').style.display='block';
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const d = quizQueue[quizIndex];
+  const total = quizQueue.length;
+  const pct = (quizIndex/total)*100;
+  document.getElementById('quiz-prog-fill').style.width = pct+'%';
+  document.getElementById('quiz-prog-text').textContent = `${quizIndex+1} / ${total}`;
+  quizAnswered = false;
+
+  const choicesHtml = d.choices.map((c,i)=>c?`
+    <button class="quiz-choice-btn" onclick="submitAnswer(${i+1})" data-num="${i+1}">
+      <span class="quiz-choice-num">${NUMS[i]}</span><span>${esc(c)}</span>
+    </button>`:''
+  ).join('');
+
+  document.getElementById('quiz-card').innerHTML = `
+    <div class="quiz-round-badge">${esc(d.round)} · ${esc(d.qnum)}번</div>
+    <div class="quiz-question-text">${esc(d.question||d.qnum+'번 문제')}</div>
+    <div class="quiz-choices" id="qchoices">${choicesHtml}</div>
+    <div id="qresult"></div>
+    <div class="quiz-nav" id="qnav" style="display:none">
+      <button class="btn btn-primary" onclick="nextQuestion()">
+        ${quizIndex+1<total?'다음 문제 →':'결과 보기'}
+      </button>
+    </div>`;
+}
+
+function submitAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const d = quizQueue[quizIndex];
+  const isCorrect = chosen === d.answer;
+
+  document.querySelectorAll('.quiz-choice-btn').forEach(btn=>{
+    btn.disabled = true;
+    const num = parseInt(btn.dataset.num);
+    if (num===d.answer) btn.classList.add('correct');
+    else if (num===chosen) btn.classList.add('wrong');
+  });
+
+  const resultEl = document.getElementById('qresult');
+  if (isCorrect) {
+    quizScore++;
+    resultEl.innerHTML = `<div class="quiz-result-box ok">✓ 정답입니다!</div>`;
+  } else {
+    quizMissed.push(d);
+    const idx = data.findIndex(x=>x.id===d.id);
+    if (idx!==-1) { data[idx].count+=1; save(); }
+    resultEl.innerHTML = `
+      <div class="quiz-result-box fail">✗ 오답입니다. 정답: ${NUMS[d.answer-1]}</div>
+      ${d.explanation?`<div class="quiz-explanation">${esc(d.explanation)}</div>`:''}`;
+  }
+  document.getElementById('qnav').style.display='flex';
+}
+
+function nextQuestion() {
+  quizIndex++;
+  if (quizIndex>=quizQueue.length) {
+    showQuizResult();
+  } else {
+    renderQuizQuestion();
+  }
+}
+
+function showQuizResult() {
+  document.getElementById('quiz-area').style.display='none';
+  const total = quizQueue.length;
+  const pct = Math.round(quizScore/total*100);
+  const missedHtml = quizMissed.map(d=>`
+    <div class="quiz-missed-item">
+      <span class="badge badge-red">✗</span>
+      <span>${esc(d.round)} ${esc(d.qnum)}번</span>
+      <span style="color:var(--muted);font-size:0.82rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.question?d.question.slice(0,30)+'…':'')}</span>
+    </div>`).join('');
+
+  document.getElementById('quiz-result').style.display='block';
+  document.getElementById('quiz-result').innerHTML = `
+    <div class="card quiz-summary">
+      <div style="font-size:1.1rem;font-weight:600">퀴즈 완료!</div>
+      <div class="quiz-summary-score">${pct}%</div>
+      <div class="quiz-summary-label">${total}문제 중 ${quizScore}개 정답</div>
+      ${quizMissed.length?`<div class="quiz-missed-list"><div class="section-label" style="margin-bottom:8px">틀린 문제 (${quizMissed.length}개)</div>${missedHtml}</div>`:'<div style="color:var(--success);font-weight:600">🎉 모두 정답!</div>'}
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:24px">
+        <button class="btn btn-primary" onclick="retryMissed()" ${!quizMissed.length?'disabled':''}>틀린 것만 다시</button>
+        <button class="btn btn-ghost" onclick="backToSetup()">처음으로</button>
+      </div>
+    </div>`;
+}
+
+function retryMissed() {
+  quizQueue = [...quizMissed];
+  quizIndex = 0; quizScore = 0; quizMissed = []; quizAnswered = false;
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-area').style.display='block';
+  renderQuizQuestion();
+}
+
+function backToSetup() {
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-setup').style.display='block';
+  updateQuizPreview();
+}
+
+/* ── Landscape mode ── */
 let landscapeMode = false;
 let selectedId = null;
 
 function toggleLandscape() {
   landscapeMode = !landscapeMode;
   document.body.classList.toggle('landscape-mode', landscapeMode);
-  document.getElementById('layout-toggle').textContent = landscapeMode ? '☰' : '⇄';
+  document.getElementById('layout-toggle').textContent = landscapeMode?'☰':'⇄';
   if (landscapeMode) { renderLandscapeList(); renderDetail(selectedId); }
 }
 
 function buildLandscapeItem(d) {
-  const titleText = d.question
-    ? (d.question.length > 36 ? d.question.slice(0, 36) + '…' : d.question)
-    : (d.note || `${d.qnum}번 문제`);
-  const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
-  const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
-  const isSelected = d.id === selectedId ? 'selected' : '';
+  const titleText = d.question?(d.question.length>34?d.question.slice(0,34)+'…':d.question):(d.note||`${d.qnum}번 문제`);
+  const cc = d.count>=3?'count-3':d.count===2?'count-2':'count-1';
+  const bc = d.count>=3?'badge-red':d.count===2?'badge-orange':'badge-purple';
+  const sel = d.id===selectedId?'selected':'';
   return `
-  <div class="wrong-item ${countClass} ${isSelected}" id="litem-${d.id}" onclick="selectItem('${d.id}')">
+  <div class="wrong-item ${cc} ${sel}" id="litem-${d.id}" onclick="selectItem('${d.id}')">
     <div class="wrong-item-header" style="cursor:pointer">
-      <div class="q-number">${escHtml(d.qnum)}</div>
-      <div class="q-info">
-        <div class="q-title">${escHtml(titleText)}</div>
-        <div class="q-meta">${escHtml(d.round)}</div>
-      </div>
-      <span class="badge ${badgeClass}">✗ ${d.count}회</span>
+      <div class="q-number">${esc(d.qnum)}</div>
+      <div class="q-info"><div class="q-title">${esc(titleText)}</div><div class="q-meta">${esc(d.round)}</div></div>
+      <span class="badge ${bc}">✗ ${d.count}회</span>
       <button class="btn-count" onclick="incrementCountL(event,'${d.id}')" title="+1">+</button>
     </div>
   </div>`;
 }
 
 function renderLandscapeList() {
-  const list = filteredData();
+  const round = document.getElementById('filter-round')?.value||'';
+  const countF = document.getElementById('filter-count')?.value||'';
+  const list = filteredData(round, countF);
   const left = document.getElementById('landscape-left');
-  const rounds = [...new Set(data.map(d => d.round))].sort();
-  const curRound = document.getElementById('filter-round')?.value || '';
-
-  const filterHtml = `
+  const rounds = getRounds();
+  left.innerHTML = `
     <div class="filter-bar" style="margin-bottom:10px">
       <select id="lf-round" onchange="onLandscapeFilter()" style="flex:1;min-width:0">
         <option value="">전체 회차</option>
-        ${rounds.map(r => `<option value="${escHtml(r)}" ${curRound===r?'selected':''}>${escHtml(r)}</option>`).join('')}
+        ${rounds.map(r=>`<option value="${esc(r)}" ${round===r?'selected':''}>${esc(r)}</option>`).join('')}
       </select>
       <input type="text" id="lf-search" placeholder="검색..." oninput="onLandscapeFilter()" style="flex:1;min-width:0" />
+    </div>
+    <div class="wrong-list">
+      ${list.length?list.map(buildLandscapeItem).join(''):`<div class="empty"><div class="empty-icon">🔍</div><p>없습니다.</p></div>`}
     </div>`;
-
-  const itemsHtml = list.length
-    ? list.map(buildLandscapeItem).join('')
-    : `<div class="empty"><div class="empty-icon">🔍</div><p>없습니다.</p></div>`;
-
-  left.innerHTML = filterHtml + `<div class="wrong-list">${itemsHtml}</div>`;
 }
 
 function onLandscapeFilter() {
-  const round = document.getElementById('lf-round')?.value || '';
-  const search = document.getElementById('lf-search')?.value.toLowerCase() || '';
-  const list = data.filter(d => {
-    if (round && d.round !== round) return false;
-    if (search) {
-      const hay = [d.qnum, d.round, d.question, d.explanation, d.note, ...(d.choices||[])].join(' ').toLowerCase();
-      if (!hay.includes(search)) return false;
-    }
-    return true;
-  }).sort((a, b) => {
-    if (a.round < b.round) return -1;
-    if (a.round > b.round) return 1;
-    return parseInt(a.qnum) - parseInt(b.qnum);
-  });
-
+  const round = document.getElementById('lf-round')?.value||'';
+  const search = document.getElementById('lf-search')?.value||'';
+  const list = filteredData(round,'',search);
   const container = document.getElementById('landscape-left')?.querySelector('.wrong-list');
-  if (container) container.innerHTML = list.map(buildLandscapeItem).join('') ||
-    `<div class="empty"><div class="empty-icon">🔍</div><p>없습니다.</p></div>`;
+  if (container) container.innerHTML = list.map(buildLandscapeItem).join('')||`<div class="empty"><div class="empty-icon">🔍</div><p>없습니다.</p></div>`;
 }
 
 function selectItem(id) {
   selectedId = id;
-  document.querySelectorAll('#landscape-left .wrong-item').forEach(el => el.classList.remove('selected'));
-  const el = document.getElementById('litem-' + id);
+  document.querySelectorAll('#landscape-left .wrong-item').forEach(el=>el.classList.remove('selected'));
+  const el = document.getElementById('litem-'+id);
   if (el) el.classList.add('selected');
   renderDetail(id);
 }
 
 function renderDetail(id) {
   const right = document.getElementById('landscape-right');
-  if (!id) {
-    right.innerHTML = `<div class="detail-panel"><div class="detail-empty">목록에서 문제를 선택하세요</div></div>`;
-    return;
-  }
-  const d = data.find(x => x.id === id);
+  if (!id) { right.innerHTML=`<div class="detail-panel"><div class="detail-empty">목록에서 문제를 선택하세요</div></div>`; return; }
+  const d = data.find(x=>x.id===id);
   if (!d) return;
-
-  const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
-  const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
-  const titleText = d.question
-    ? (d.question.length > 50 ? d.question.slice(0, 50) + '…' : d.question)
-    : (d.note || `${d.qnum}번 문제`);
-
-  const bodyContent = (d.note && !d.question)
-    ? `<div class="field-block"><div class="field-label">메모</div><div class="field-text">${escHtml(d.note)}</div></div>`
-    : buildQuizHtml(d, 'd');
-
+  const bc = d.count>=3?'badge-red':d.count===2?'badge-orange':'badge-purple';
+  const hasChoices = d.choices&&d.choices.some(c=>c);
+  const choicesHtml = hasChoices?`
+    <div class="study-choices">
+      ${d.choices.map((c,i)=>c?`<div class="study-choice${d.answer===i+1?' is-answer':''}"><span class="study-choice-num">${NUMS[i]}</span><span>${esc(c)}</span></div>`:'').join('')}
+    </div>`:'';
   right.innerHTML = `
     <div class="detail-panel">
-      <div class="detail-header">
-        <div class="q-number ${countClass}" style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0">${escHtml(d.qnum)}</div>
-        <div style="flex:1;min-width:0">
-          <div class="q-title">${escHtml(d.round)} · ${escHtml(d.qnum)}번</div>
-          <div class="q-meta"><span class="badge ${badgeClass}">✗ ${d.count}회</span></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+        <div class="q-number" style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0">${esc(d.qnum)}</div>
+        <div style="flex:1">
+          <div style="font-size:1rem;font-weight:600">${esc(d.round)} · ${esc(d.qnum)}번</div>
+          <div style="font-size:0.8rem;margin-top:3px"><span class="badge ${bc}">✗ ${d.count}회</span></div>
         </div>
         <button class="btn-count" onclick="incrementCountD('${d.id}')" title="+1">+</button>
       </div>
-      ${bodyContent}
+      ${d.question?`<div class="study-question">${esc(d.question)}</div>`:''}
+      ${choicesHtml}
+      ${(d.explanation||d.note)?`<div class="section-label" style="margin-top:12px">해설</div><div class="explanation-box">${esc(d.explanation||d.note)}</div>`:''}
     </div>`;
 }
 
-function incrementCountL(e, id) {
+function incrementCountL(e,id) {
   e.stopPropagation();
-  const idx = data.findIndex(d => d.id === id);
-  if (idx === -1) return;
-  data[idx].count += 1;
-  save();
-  renderLandscapeList();
-  if (selectedId === id) renderDetail(id);
+  const idx = data.findIndex(d=>d.id===id);
+  if (idx===-1) return;
+  data[idx].count+=1; save(); renderLandscapeList();
+  if (selectedId===id) renderDetail(id);
   toast(`${data[idx].qnum}번 — ${data[idx].count}회`);
 }
-
 function incrementCountD(id) {
-  const idx = data.findIndex(d => d.id === id);
-  if (idx === -1) return;
-  data[idx].count += 1;
-  save();
-  renderLandscapeList();
-  renderDetail(id);
+  const idx = data.findIndex(d=>d.id===id);
+  if (idx===-1) return;
+  data[idx].count+=1; save(); renderLandscapeList(); renderDetail(id);
   toast(`${data[idx].qnum}번 — ${data[idx].count}회`);
 }
 
-function deleteEntry(id) {
-  if (!confirm('이 오답을 삭제할까요?')) return;
-  data = data.filter(d => d.id !== id);
-  save();
-  updateRoundFilter();
-  renderList();
-  toast('삭제됐습니다.');
-}
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.id==='inp-qnum') addEntry(); });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.target.id === 'inp-qnum') addEntry();
-});
-
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
-window.addEventListener('appinstalled', () => { deferredPrompt = null; });
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
-}
-
-document.getElementById('wrong-list').innerHTML = `<div class="skeleton"></div><div class="skeleton" style="margin-top:12px"></div>`;
-fetchData().then(() => { updateRoundFilter(); });
+document.getElementById('wrong-list').innerHTML=`<div class="skeleton"></div><div class="skeleton" style="margin-top:12px"></div>`;
+fetchData().then(()=>{ updateRoundFilter(); });
 </script>
 </body>
 </html>
