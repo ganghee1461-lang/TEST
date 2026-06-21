@@ -35,10 +35,34 @@
       top: 0;
       z-index: 100;
       box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     header h1 { font-size: 1.2rem; font-weight: 700; }
     header p { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+
+    #sync-status {
+      font-size: 0.78rem;
+      opacity: 0.85;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #86efac;
+      flex-shrink: 0;
+    }
+
+    .dot.syncing { background: #fde68a; animation: pulse 1s infinite; }
+    .dot.error { background: #fca5a5; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     .container { max-width: 720px; margin: 0 auto; padding: 16px; }
 
@@ -280,13 +304,29 @@
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 8px;
+      height: 64px;
+    }
+
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>📝 오답 노트</h1>
-  <p>틀린 문제를 기록하고 복습하세요</p>
+  <div>
+    <h1>📝 오답 노트</h1>
+    <p>틀린 문제를 기록하고 복습하세요</p>
+  </div>
+  <div id="sync-status">
+    <div class="dot" id="sync-dot"></div>
+    <span id="sync-text">로딩 중...</span>
+  </div>
 </header>
 
 <div class="container">
@@ -344,15 +384,55 @@
 <div id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'wrongnote_v1';
 let data = [];
+let currentSha = null;
+let saveTimer = null;
 
-function load() {
-  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { data = []; }
+/* ── 동기화 상태 표시 ── */
+function setSyncStatus(state, text) {
+  document.getElementById('sync-text').textContent = text;
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
 }
 
+/* ── GitHub API (Pages Function 경유) ── */
+async function fetchData() {
+  setSyncStatus('syncing', '불러오는 중...');
+  try {
+    const res = await fetch('/api');
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    data = json.data || [];
+    currentSha = json.sha || null;
+    setSyncStatus('ok', '동기화됨');
+  } catch {
+    setSyncStatus('error', '불러오기 실패');
+    toast('데이터를 불러오지 못했습니다.');
+  }
+}
+
+async function pushData() {
+  setSyncStatus('syncing', '저장 중...');
+  try {
+    const res = await fetch('/api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data, sha: currentSha }),
+    });
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    currentSha = json.sha;
+    setSyncStatus('ok', '동기화됨');
+  } catch {
+    setSyncStatus('error', '저장 실패');
+    toast('저장에 실패했습니다. 다시 시도해주세요.');
+  }
+}
+
+/* 변경 시 0.8초 디바운스 후 저장 */
 function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(pushData, 800);
 }
 
 function genId() {
@@ -363,9 +443,10 @@ function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
+  setTimeout(() => el.classList.remove('show'), 2500);
 }
 
+/* ── 탭 ── */
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
     t.classList.toggle('active', ['add','list'][i] === name);
@@ -375,6 +456,7 @@ function switchTab(name) {
   if (name === 'list') { updateRoundFilter(); renderList(); }
 }
 
+/* ── 추가 ── */
 function addEntry() {
   const round = document.getElementById('inp-round').value.trim();
   const qnum = document.getElementById('inp-qnum').value.trim();
@@ -388,20 +470,20 @@ function addEntry() {
   if (existing) {
     existing.count += count;
     existing.note = note || existing.note;
-    save();
     toast(`${round} ${qnum}번 — 틀린 횟수 ${existing.count}회로 업데이트`);
   } else {
     data.push({ id: genId(), round, qnum, count, note, createdAt: Date.now() });
-    save();
     toast('오답이 추가됐습니다.');
   }
 
+  save();
   document.getElementById('inp-qnum').value = '';
   document.getElementById('inp-count').value = '1';
   document.getElementById('inp-note').value = '';
   document.getElementById('inp-qnum').focus();
 }
 
+/* ── 필터 ── */
 function updateRoundFilter() {
   const rounds = [...new Set(data.map(d => d.round))].sort();
   const sel = document.getElementById('filter-round');
@@ -435,6 +517,7 @@ function filteredData() {
   });
 }
 
+/* ── 목록 렌더 ── */
 function renderList() {
   const list = filteredData();
   const el = document.getElementById('wrong-list');
@@ -543,8 +626,9 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.id === 'inp-qnum') addEntry();
 });
 
-load();
-updateRoundFilter();
+/* ── 초기 로드 ── */
+document.getElementById('wrong-list').innerHTML = `<div class="skeleton"></div><div class="skeleton" style="margin-top:12px"></div>`;
+fetchData().then(() => { updateRoundFilter(); });
 </script>
 </body>
 </html>
