@@ -68,9 +68,22 @@ export async function onRequest(context) {
 
     if (method === 'POST') {
       const body = await context.request.json();
+
+      if (body.type === 'question') {
+        const q = body.question;
+        if (!q?.id) return resp({ error: 'question.id required' }, 400);
+        const qr = await getFile(headers, Q_FILE);
+        const questions = qr.data || [];
+        const idx = questions.findIndex(x => x.id === q.id);
+        if (idx === -1) return resp({ error: 'question not found' }, 404);
+        questions[idx] = { ...questions[idx], ...q };
+        const newSha = await putFile(headers, Q_FILE, questions, qr.sha, 'edit question');
+        return resp({ sha_q: newSha });
+      }
+
+      // default: increment progress
       const { id } = body;
       if (!id) return resp({ error: 'id required' }, 400);
-      // always fetch latest progress to avoid sha conflicts
       const pr = await getFile(headers, P_FILE);
       const progress = pr.data || {};
       progress[id] = (progress[id] || 0) + 1;
