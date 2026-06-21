@@ -829,7 +829,7 @@
     "qnum": "48",
     "count": 1,
     "question": "사용온도 350℃ 이하, 압력 10MPa 이상 고압관에 사용되는 배관 재료는?",
-    "explanation": "정답: SPPH (고압배관용 탄소강관, Steel Pipe Piping High pressure)\n\n배관 재료 기호:\nSPP: 배관용 탄소강관 - 일반 저압 배관\nSPPH: 고압배관용 탄소강관 - 350℃ 이하, 10MPa 이상 고압\nSPPW: 수도용 아연도금강관 - 수도·급수 배관\nSPPG: 가스용 강관 - 도시가스 배관\n\n암기: H = High pressure",
+    "explanation": "정답: SPPH (고압배관용 탄소강관, Steel Pipe Piping High pressure)\n\n배관 재료 기호:\nSPP: 배관용 탄소강관 - 일반 저압 배관\nSPPG: 가스용 강관 - 1MPA~10MPA 미만\nSPPH: 고압배관용 탄소강관 - 350℃ 이하, 10MPa 이상 고압\nSPPW: 수도용 아연도금강관 - 수도·급수 배관\n\n암기: H = High pressure",
     "createdAt": 1782104200000
   },
   {
