@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>오답 노트</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="오답노트" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -323,6 +328,9 @@
     <h1>📝 오답 노트</h1>
     <p>틀린 문제를 기록하고 복습하세요</p>
   </div>
+  <button id="install-btn" onclick="installApp()" style="display:none;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:6px 12px;font-size:0.8rem;font-weight:600;cursor:pointer;margin-right:10px">
+    앱 설치
+  </button>
   <div id="sync-status">
     <div class="dot" id="sync-dot"></div>
     <span id="sync-text">로딩 중...</span>
@@ -625,6 +633,30 @@ function deleteEntry(id) {
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.id === 'inp-qnum') addEntry();
 });
+
+/* ── PWA 설치 ── */
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-btn').style.display = 'inline-block';
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-btn').style.display = 'none';
+  deferredPrompt = null;
+});
+
+function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
 
 /* ── 초기 로드 ── */
 document.getElementById('wrong-list').innerHTML = `<div class="skeleton"></div><div class="skeleton" style="margin-top:12px"></div>`;
