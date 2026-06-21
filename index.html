@@ -363,6 +363,13 @@ async function incrementProgress(id) {
 
 function getCount(id) { return progress[id] || 0; }
 
+async function addToWrong(id, btn) {
+  await incrementProgress(id);
+  btn.textContent = '✓ 추가됨';
+  btn.disabled = true;
+  toast('오답노트에 추가됐습니다.');
+}
+
 /* ── Rounds ── */
 function getRounds() {
   return [...new Set(questions.map(q => q.round))].sort();
@@ -564,7 +571,8 @@ async function submitAnswer(chosen) {
     quizScore++;
     document.getElementById('qresult').innerHTML = `
       <div class="quiz-result-box ok">✓ 정답입니다!</div>
-      ${q.explanation ? `<div class="quiz-explanation">${esc(q.explanation)}</div>` : ''}`;
+      ${q.explanation ? `<div class="quiz-explanation">${esc(q.explanation)}</div>` : ''}
+      <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addToWrong('${q.id}', this)">+ 오답노트 추가</button>`;
   } else {
     quizMissed.push(q);
     await incrementProgress(q.id);
