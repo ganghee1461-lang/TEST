@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 배경 -->
+  <rect width="512" height="512" rx="112" fill="#4f46e5"/>
+
+  <!-- 노트 -->
+  <rect x="130" y="100" width="252" height="312" rx="18" fill="white"/>
+
+  <!-- 링 바인더 -->
+  <rect x="112" y="100" width="36" height="312" rx="8" fill="#c7d2fe"/>
+  <circle cx="130" cy="170" r="14" fill="#4f46e5"/>
+  <circle cx="130" cy="256" r="14" fill="#4f46e5"/>
+  <circle cx="130" cy="342" r="14" fill="#4f46e5"/>
+
+  <!-- 줄 -->
+  <rect x="168" y="175" width="180" height="12" rx="6" fill="#e0e7ff"/>
+  <rect x="168" y="210" width="150" height="12" rx="6" fill="#e0e7ff"/>
+  <rect x="168" y="245" width="170" height="12" rx="6" fill="#e0e7ff"/>
+  <rect x="168" y="280" width="130" height="12" rx="6" fill="#e0e7ff"/>
+
+  <!-- 빨간 X 표시 (오답) -->
+  <circle cx="340" cy="340" r="68" fill="#ef4444"/>
+  <line x1="314" y1="314" x2="366" y2="366" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="366" y1="314" x2="314" y2="366" stroke="white" stroke-width="18" stroke-linecap="round"/>
+</svg>
