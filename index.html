@@ -319,6 +319,91 @@
     }
 
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* 플로팅 토글 버튼 */
+    #layout-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 20px;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 200;
+      box-shadow: 0 2px 12px rgba(79,70,229,0.4);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s;
+    }
+    #layout-toggle:active { transform: scale(0.9); }
+
+    /* 가로모드 레이아웃 */
+    body.landscape-mode .container {
+      max-width: 100%;
+      padding: 0;
+      display: flex;
+      height: calc(100vh - 48px);
+      overflow: hidden;
+    }
+
+    body.landscape-mode header {
+      padding: 8px 16px;
+    }
+
+    body.landscape-mode header h1 { font-size: 1rem; }
+    body.landscape-mode header p { display: none; }
+
+    body.landscape-mode .tabs { display: none; }
+
+    #landscape-left {
+      display: none;
+      width: 340px;
+      min-width: 280px;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 12px;
+      flex-shrink: 0;
+    }
+
+    #landscape-right {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    body.landscape-mode #landscape-left,
+    body.landscape-mode #landscape-right { display: block; }
+
+    body.landscape-mode #tab-add,
+    body.landscape-mode #tab-list { display: none !important; }
+
+    /* 가로모드 목록 카드 - 컴팩트하게 */
+    body.landscape-mode .wrong-item-body { display: none !important; }
+
+    body.landscape-mode .wrong-item.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(79,70,229,0.2);
+    }
+
+    /* 우측 패널 해설 스타일 */
+    .detail-panel { height: 100%; }
+    .detail-empty {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: var(--muted); font-size: 0.95rem;
+    }
+    .detail-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-header .q-number {
+      width: 44px; height: 44px; font-size: 1rem;
+    }
+    .detail-header .q-title { font-size: 1.05rem; font-weight: 600; }
+    .detail-header .q-meta { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
   </style>
 </head>
 <body>
@@ -328,7 +413,6 @@
     <h1>📝 오답 노트</h1>
     <p>틀린 문제를 기록하고 복습하세요</p>
   </div>
-  <button id="install-btn" onclick="installApp()" style="display:none;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:6px 12px;font-size:0.8rem;font-weight:600;cursor:pointer;margin-right:10px">앱 설치</button>
   <div id="sync-status">
     <div class="dot" id="sync-dot"></div>
     <span id="sync-text">로딩 중...</span>
@@ -389,9 +473,19 @@
     <div id="wrong-list" class="wrong-list"></div>
   </div>
 
+  <!-- 가로모드 패널 -->
+  <div id="landscape-left"></div>
+  <div id="landscape-right">
+    <div class="detail-panel">
+      <div class="detail-empty">목록에서 문제를 선택하세요</div>
+    </div>
+  </div>
+
 </div>
 
 <div id="toast"></div>
+
+<button id="layout-toggle" onclick="toggleLandscape()" title="가로/세로 모드 전환">⇄</button>
 
 <script>
 let data = [];
@@ -649,6 +743,158 @@ function incrementCount(e, id) {
   data[idx].count += 1;
   save();
   renderList();
+  toast(`${data[idx].qnum}번 — 틀린 횟수 ${data[idx].count}회`);
+}
+
+let landscapeMode = false;
+let selectedId = null;
+
+function toggleLandscape() {
+  landscapeMode = !landscapeMode;
+  document.body.classList.toggle('landscape-mode', landscapeMode);
+  const btn = document.getElementById('layout-toggle');
+  btn.textContent = landscapeMode ? '☰' : '⇄';
+  if (landscapeMode) {
+    renderLandscapeList();
+    renderDetail(selectedId);
+  }
+}
+
+function renderLandscapeList() {
+  const list = filteredData();
+  const left = document.getElementById('landscape-left');
+
+  const filterHtml = `
+    <div class="filter-bar" style="margin-bottom:10px">
+      <select id="lf-round" onchange="onLandscapeFilter()" style="flex:1;min-width:0">
+        <option value="">전체 회차</option>
+        ${[...new Set(data.map(d => d.round))].sort().map(r =>
+          `<option value="${escHtml(r)}" ${document.getElementById('filter-round')?.value === r ? 'selected' : ''}>${escHtml(r)}</option>`
+        ).join('')}
+      </select>
+      <input type="text" id="lf-search" placeholder="검색..." oninput="onLandscapeFilter()" style="flex:1;min-width:0" />
+    </div>
+  `;
+
+  const itemsHtml = list.length ? list.map(d => {
+    const titleText = d.question || d.note || `${d.qnum}번 문제`;
+    const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
+    const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
+    const isSelected = d.id === selectedId ? 'selected' : '';
+    return `
+    <div class="wrong-item ${countClass} ${isSelected}" id="litem-${d.id}" onclick="selectItem('${d.id}')">
+      <div class="wrong-item-header" style="cursor:pointer">
+        <div class="q-number">${escHtml(d.qnum)}</div>
+        <div class="q-info">
+          <div class="q-title">${escHtml(titleText)}</div>
+          <div class="q-meta">${escHtml(d.round)}</div>
+        </div>
+        <span class="badge ${badgeClass}">✗ ${d.count}회</span>
+        <button class="btn-count" onclick="incrementCountL(event,'${d.id}')" title="+1">+</button>
+      </div>
+    </div>`;
+  }).join('') : `<div class="empty"><div class="empty-icon">🔍</div><p>표시할 오답이 없습니다.</p></div>`;
+
+  left.innerHTML = filterHtml + `<div class="wrong-list">${itemsHtml}</div>`;
+}
+
+function onLandscapeFilter() {
+  const round = document.getElementById('lf-round')?.value || '';
+  const search = document.getElementById('lf-search')?.value.toLowerCase() || '';
+  const list = data.filter(d => {
+    if (round && d.round !== round) return false;
+    if (search) {
+      const hay = [d.qnum, d.round, d.question, d.explanation, d.note].join(' ').toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    if (a.round < b.round) return -1;
+    if (a.round > b.round) return 1;
+    return parseInt(a.qnum) - parseInt(b.qnum);
+  });
+
+  const container = document.getElementById('landscape-left').querySelector('.wrong-list');
+  if (!container) return;
+  container.innerHTML = list.map(d => {
+    const titleText = d.question || d.note || `${d.qnum}번 문제`;
+    const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
+    const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
+    const isSelected = d.id === selectedId ? 'selected' : '';
+    return `
+    <div class="wrong-item ${countClass} ${isSelected}" id="litem-${d.id}" onclick="selectItem('${d.id}')">
+      <div class="wrong-item-header" style="cursor:pointer">
+        <div class="q-number">${escHtml(d.qnum)}</div>
+        <div class="q-info">
+          <div class="q-title">${escHtml(titleText)}</div>
+          <div class="q-meta">${escHtml(d.round)}</div>
+        </div>
+        <span class="badge ${badgeClass}">✗ ${d.count}회</span>
+        <button class="btn-count" onclick="incrementCountL(event,'${d.id}')" title="+1">+</button>
+      </div>
+    </div>`;
+  }).join('') || `<div class="empty"><div class="empty-icon">🔍</div><p>표시할 오답이 없습니다.</p></div>`;
+}
+
+function selectItem(id) {
+  selectedId = id;
+  document.querySelectorAll('#landscape-left .wrong-item').forEach(el => el.classList.remove('selected'));
+  const el = document.getElementById('litem-' + id);
+  if (el) el.classList.add('selected');
+  renderDetail(id);
+}
+
+function renderDetail(id) {
+  const right = document.getElementById('landscape-right');
+  if (!id) {
+    right.innerHTML = `<div class="detail-panel"><div class="detail-empty">목록에서 문제를 선택하세요</div></div>`;
+    return;
+  }
+  const d = data.find(x => x.id === id);
+  if (!d) return;
+  const titleText = d.question || d.note || `${d.qnum}번 문제`;
+  const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
+  const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
+  const bodyContent = (d.note && !d.question && !d.explanation) ? `
+    <div class="field-block"><div class="field-label">해설 / 메모</div><div class="field-text">${escHtml(d.note)}</div></div>
+  ` : `
+    ${d.question ? `<div class="field-block"><div class="field-label">문제 요약</div><div class="field-text">${escHtml(d.question)}</div></div>` : ''}
+    ${d.explanation ? `<div class="field-block"><div class="field-label">해설</div><div class="field-text">${escHtml(d.explanation)}</div></div>` : ''}
+    ${!d.question && !d.explanation ? `<div class="field-empty">내용이 없습니다.</div>` : ''}
+  `;
+
+  right.innerHTML = `
+    <div class="detail-panel">
+      <div class="detail-header">
+        <div class="q-number ${countClass === 'count-2' ? 'wrong-item count-2' : countClass === 'count-3' ? 'wrong-item count-3' : ''}" style="width:44px;height:44px;background:var(--primary-light);color:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0">${escHtml(d.qnum)}</div>
+        <div>
+          <div class="q-title" style="font-size:1.05rem;font-weight:600">${escHtml(titleText)}</div>
+          <div class="q-meta" style="font-size:0.8rem;color:var(--muted);margin-top:3px">${escHtml(d.round)} · ${escHtml(d.qnum)}번 · <span class="badge ${badgeClass}">✗ ${d.count}회</span></div>
+        </div>
+        <button class="btn-count" onclick="incrementCountD('${d.id}')" title="+1" style="margin-left:auto">+</button>
+      </div>
+      ${bodyContent}
+    </div>`;
+}
+
+function incrementCountL(e, id) {
+  e.stopPropagation();
+  const idx = data.findIndex(d => d.id === id);
+  if (idx === -1) return;
+  data[idx].count += 1;
+  save();
+  renderLandscapeList();
+  if (selectedId === id) renderDetail(id);
+  toast(`${data[idx].qnum}번 — 틀린 횟수 ${data[idx].count}회`);
+}
+
+function incrementCountD(id) {
+  const idx = data.findIndex(d => d.id === id);
+  if (idx === -1) return;
+  data[idx].count += 1;
+  save();
+  renderLandscapeList();
+  renderDetail(id);
   toast(`${data[idx].qnum}번 — 틀린 횟수 ${data[idx].count}회`);
 }
 
