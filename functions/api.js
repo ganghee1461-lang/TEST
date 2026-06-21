@@ -47,7 +47,7 @@ export async function onRequest(context) {
       }
 
       const file = await res.json();
-      const raw = atob(file.content.replace(/\s/g, ''));
+      const raw = decodeURIComponent(escape(atob(file.content.replace(/\s/g, ''))));
       const data = JSON.parse(raw);
       return json({ data, sha: file.sha });
     }
