@@ -27,8 +27,6 @@
       --radius: 12px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
@@ -39,7 +37,7 @@
     header {
       background: var(--primary);
       color: #fff;
-      padding: 16px 20px;
+      padding: 12px 20px;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -49,8 +47,7 @@
       justify-content: space-between;
     }
 
-    header h1 { font-size: 1.2rem; font-weight: 700; }
-    header p { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+    header h1 { font-size: 1.1rem; font-weight: 700; }
 
     #sync-status {
       font-size: 0.78rem;
@@ -244,17 +241,6 @@
       margin-bottom: 5px;
     }
 
-    .field-answer {
-      background: var(--success-light);
-      border-left: 3px solid var(--success);
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
-
     .field-text {
       font-size: 0.9rem;
       line-height: 1.6;
@@ -274,7 +260,7 @@
 
     #toast {
       position: fixed;
-      bottom: 24px;
+      bottom: 80px;
       left: 50%;
       transform: translateX(-50%) translateY(80px);
       background: #1f2937;
@@ -320,6 +306,77 @@
 
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
+    /* 퀴즈 스타일 */
+    .quiz-question {
+      font-size: 0.95rem;
+      line-height: 1.65;
+      font-weight: 500;
+      color: var(--text);
+      margin-top: 12px;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
+
+    .quiz-choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+
+    .choice-btn {
+      text-align: left;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+
+    .choice-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); }
+    .choice-btn.correct { border-color: var(--success) !important; background: var(--success-light) !important; color: #065f46; font-weight: 600; }
+    .choice-btn.wrong { border-color: var(--danger) !important; background: var(--danger-light) !important; color: #991b1b; }
+    .choice-btn:disabled { cursor: default; }
+
+    .quiz-result {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      display: none;
+    }
+    .quiz-result.ok { background: var(--success-light); color: #065f46; display: block; }
+    .quiz-result.fail { background: var(--danger-light); color: #991b1b; display: block; }
+
+    .explanation-wrap {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      color: var(--text);
+      margin-top: 4px;
+    }
+
+    .btn-retry {
+      margin-top: 8px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 0.82rem;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .btn-retry:hover { background: var(--bg); }
+
+    /* 선지 입력 그리드 */
+    .choices-grid { display: flex; flex-direction: column; gap: 6px; }
+    .choice-input-row { display: flex; align-items: center; gap: 8px; }
+    .choice-num { width: 22px; font-size: 0.85rem; font-weight: 600; color: var(--muted); flex-shrink: 0; text-align: center; }
+
     /* 플로팅 토글 버튼 */
     #layout-toggle {
       position: fixed;
@@ -348,19 +405,14 @@
       overflow: hidden;
     }
 
-    body.landscape-mode header {
-      padding: 8px 16px;
-    }
-
+    body.landscape-mode header { padding: 8px 16px; }
     body.landscape-mode header h1 { font-size: 1rem; }
-    body.landscape-mode header p { display: none; }
-
     body.landscape-mode .tabs { display: none; }
 
     #landscape-left {
       display: none;
-      width: 340px;
-      min-width: 280px;
+      width: 320px;
+      min-width: 260px;
       border-right: 1px solid var(--border);
       overflow-y: auto;
       padding: 12px;
@@ -380,7 +432,6 @@
     body.landscape-mode #tab-add,
     body.landscape-mode #tab-list { display: none !important; }
 
-    /* 가로모드 목록 카드 - 컴팩트하게 */
     body.landscape-mode .wrong-item-body { display: none !important; }
 
     body.landscape-mode .wrong-item.selected {
@@ -388,20 +439,17 @@
       box-shadow: 0 0 0 2px rgba(79,70,229,0.2);
     }
 
-    /* 우측 패널 해설 스타일 */
     .detail-panel { height: 100%; }
     .detail-empty {
       display: flex; align-items: center; justify-content: center;
-      height: 100%; color: var(--muted); font-size: 0.95rem;
+      height: 200px; color: var(--muted); font-size: 0.95rem;
     }
     .detail-header {
       display: flex; align-items: center; gap: 12px;
-      margin-bottom: 20px; padding-bottom: 16px;
+      margin-bottom: 16px; padding-bottom: 16px;
       border-bottom: 1px solid var(--border);
     }
-    .detail-header .q-number {
-      width: 44px; height: 44px; font-size: 1rem;
-    }
+    .detail-header .q-number { width: 44px; height: 44px; font-size: 1rem; }
     .detail-header .q-title { font-size: 1.05rem; font-weight: 600; }
     .detail-header .q-meta { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
   </style>
@@ -409,10 +457,7 @@
 <body>
 
 <header>
-  <div>
-    <h1>📝 오답 노트</h1>
-    <p>틀린 문제를 기록하고 복습하세요</p>
-  </div>
+  <h1>📝 오답 노트</h1>
   <div id="sync-status">
     <div class="dot" id="sync-dot"></div>
     <span id="sync-text">로딩 중...</span>
@@ -433,7 +478,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>회차</label>
-          <input type="text" id="inp-round" placeholder="예: 2024년 1회" />
+          <input type="text" id="inp-round" placeholder="예: 2025년 1회" />
         </div>
         <div class="form-group">
           <label>문제 번호</label>
@@ -441,16 +486,37 @@
         </div>
       </div>
       <div class="form-group">
-        <label>틀린 횟수</label>
-        <input type="number" id="inp-count" value="1" min="1" max="99" />
+        <label>문제 내용</label>
+        <textarea id="inp-question" placeholder="문제 전체 내용을 입력하세요" style="min-height:88px"></textarea>
       </div>
       <div class="form-group">
-        <label>문제 요약</label>
-        <input type="text" id="inp-question" placeholder="어떤 문제인지 한 줄로" />
+        <label>선지 (4개)</label>
+        <div class="choices-grid">
+          <div class="choice-input-row"><span class="choice-num">①</span><input type="text" id="inp-c1" placeholder="1번 선지" /></div>
+          <div class="choice-input-row"><span class="choice-num">②</span><input type="text" id="inp-c2" placeholder="2번 선지" /></div>
+          <div class="choice-input-row"><span class="choice-num">③</span><input type="text" id="inp-c3" placeholder="3번 선지" /></div>
+          <div class="choice-input-row"><span class="choice-num">④</span><input type="text" id="inp-c4" placeholder="4번 선지" /></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>정답 번호</label>
+          <select id="inp-answer">
+            <option value="">선택</option>
+            <option value="1">① 1번</option>
+            <option value="2">② 2번</option>
+            <option value="3">③ 3번</option>
+            <option value="4">④ 4번</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>틀린 횟수</label>
+          <input type="number" id="inp-count" value="1" min="1" max="99" />
+        </div>
       </div>
       <div class="form-group" style="margin-bottom:16px">
         <label>해설</label>
-        <textarea id="inp-explanation" placeholder="전체 개념 정리"></textarea>
+        <textarea id="inp-explanation" placeholder="개념 설명 및 해설"></textarea>
       </div>
       <button class="btn btn-primary" onclick="addEntry()">추가하기</button>
     </div>
@@ -484,7 +550,6 @@
 </div>
 
 <div id="toast"></div>
-
 <button id="layout-toggle" onclick="toggleLandscape()" title="가로/세로 모드 전환">⇄</button>
 
 <script>
@@ -556,33 +621,46 @@ function switchTab(name) {
   if (name === 'list') { updateRoundFilter(); renderList(); }
 }
 
+function getChoicesFromForm(prefix) {
+  return [1,2,3,4].map(i => {
+    const el = document.getElementById(`${prefix}c${i}`);
+    return el ? el.value.trim() : '';
+  });
+}
+
 function addEntry() {
   const round = document.getElementById('inp-round').value.trim();
   const qnum = document.getElementById('inp-qnum').value.trim();
   const count = parseInt(document.getElementById('inp-count').value) || 1;
   const question = document.getElementById('inp-question').value.trim();
+  const choices = getChoicesFromForm('inp-');
+  const answer = parseInt(document.getElementById('inp-answer').value) || null;
   const explanation = document.getElementById('inp-explanation').value.trim();
 
   if (!round) { toast('회차를 입력해주세요.'); return; }
   if (!qnum) { toast('문제 번호를 입력해주세요.'); return; }
 
-  const existing = data.find(d => d.round === round && d.qnum === qnum);
+  const existing = data.find(d => d.round === round && String(d.qnum) === String(qnum));
   if (existing) {
     existing.count += count;
     if (question) existing.question = question;
+    if (choices.some(c => c)) existing.choices = choices;
+    if (answer) existing.answer = answer;
     if (explanation) existing.explanation = explanation;
     delete existing.note;
     toast(`${round} ${qnum}번 — 틀린 횟수 ${existing.count}회로 업데이트`);
   } else {
-    data.push({ id: genId(), round, qnum, count, question, explanation, createdAt: Date.now() });
+    data.push({ id: genId(), round, qnum, count, question, choices, answer, explanation, createdAt: Date.now() });
     toast('오답이 추가됐습니다.');
   }
 
   save();
-  document.getElementById('inp-qnum').value = '';
+  ['inp-qnum','inp-question','inp-c1','inp-c2','inp-c3','inp-c4','inp-explanation'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   document.getElementById('inp-count').value = '1';
-  document.getElementById('inp-question').value = '';
-  document.getElementById('inp-explanation').value = '';
+  document.getElementById('inp-answer').value = '';
   document.getElementById('inp-qnum').focus();
 }
 
@@ -610,7 +688,7 @@ function filteredData() {
     if (countF === '2' && d.count !== 2) return false;
     if (countF === '3' && d.count < 3) return false;
     if (search) {
-      const hay = [d.qnum, d.round, d.question, d.answer, d.explanation, d.note].join(' ').toLowerCase();
+      const hay = [d.qnum, d.round, d.question, d.explanation, d.note, ...(d.choices||[])].join(' ').toLowerCase();
       if (!hay.includes(search)) return false;
     }
     return true;
@@ -619,6 +697,83 @@ function filteredData() {
     if (a.round > b.round) return 1;
     return parseInt(a.qnum) - parseInt(b.qnum);
   });
+}
+
+function buildQuizHtml(d, ns) {
+  // ns = namespace prefix for element IDs to avoid collision
+  const hasChoices = d.choices && d.choices.some(c => c);
+  const nums = ['①','②','③','④'];
+  const choicesHtml = hasChoices ? `
+    <div class="quiz-choices" id="qc-${ns}${d.id}">
+      ${d.choices.map((c, i) => c ? `
+        <button class="choice-btn" onclick="checkAnswer('${d.id}','${ns}',${i+1})" data-num="${i+1}">
+          ${nums[i]} ${escHtml(c)}
+        </button>` : '').join('')}
+    </div>` : '';
+  const questionHtml = d.question ? `<div class="quiz-question">${escHtml(d.question)}</div>` : '';
+  const resultHtml = hasChoices ? `<div class="quiz-result" id="qr-${ns}${d.id}"></div>` : '';
+  const expHtml = d.explanation ? `
+    <div id="exp-${ns}${d.id}" style="display:${hasChoices ? 'none' : 'block'}">
+      <div class="field-label" style="margin-top:12px">해설</div>
+      <div class="explanation-wrap">${escHtml(d.explanation)}</div>
+    </div>` : '';
+  const retryHtml = hasChoices ? `<button class="btn-retry" id="retry-${ns}${d.id}" onclick="retryQuiz('${d.id}','${ns}')" style="display:none">다시 풀기</button>` : '';
+
+  return `${questionHtml}${choicesHtml}${resultHtml}${expHtml}${retryHtml}`;
+}
+
+function checkAnswer(id, ns, chosen) {
+  const d = data.find(x => x.id === id);
+  if (!d || !d.answer) return;
+
+  const btns = document.querySelectorAll(`#qc-${ns}${id} .choice-btn`);
+  btns.forEach(btn => {
+    btn.disabled = true;
+    const num = parseInt(btn.dataset.num);
+    if (num === d.answer) btn.classList.add('correct');
+    else if (num === chosen) btn.classList.add('wrong');
+  });
+
+  const result = document.getElementById(`qr-${ns}${id}`);
+  const isCorrect = chosen === d.answer;
+  if (result) {
+    result.className = 'quiz-result ' + (isCorrect ? 'ok' : 'fail');
+    result.textContent = isCorrect ? '✓ 정답입니다!' : `✗ 오답입니다. 정답: ${d.answer}번`;
+  }
+
+  const exp = document.getElementById(`exp-${ns}${id}`);
+  if (exp) exp.style.display = 'block';
+
+  const retry = document.getElementById(`retry-${ns}${id}`);
+  if (retry) retry.style.display = 'inline-block';
+
+  if (!isCorrect) {
+    const idx = data.findIndex(x => x.id === id);
+    if (idx !== -1) {
+      data[idx].count += 1;
+      save();
+    }
+  }
+}
+
+function retryQuiz(id, ns) {
+  const d = data.find(x => x.id === id);
+  if (!d) return;
+
+  const btns = document.querySelectorAll(`#qc-${ns}${id} .choice-btn`);
+  btns.forEach(btn => {
+    btn.disabled = false;
+    btn.classList.remove('correct', 'wrong');
+  });
+
+  const result = document.getElementById(`qr-${ns}${id}`);
+  if (result) { result.className = 'quiz-result'; result.textContent = ''; }
+
+  const exp = document.getElementById(`exp-${ns}${id}`);
+  if (exp) exp.style.display = 'none';
+
+  const retry = document.getElementById(`retry-${ns}${id}`);
+  if (retry) retry.style.display = 'none';
 }
 
 function renderList() {
@@ -631,22 +786,23 @@ function renderList() {
   }
 
   el.innerHTML = list.map(d => {
-    const isLegacy = !d.question && !d.answer && !d.explanation && d.note;
-    const titleText = d.question || d.note || `${d.qnum}번 문제`;
-
-    const bodyContent = isLegacy ? `
-      <div class="field-block">
-        <div class="field-label">해설 / 메모</div>
-        <div class="field-text">${escHtml(d.note)}</div>
-      </div>
-    ` : `
-      ${d.question ? `<div class="field-block"><div class="field-label">문제 요약</div><div class="field-text">${escHtml(d.question)}</div></div>` : ''}
-      ${d.explanation ? `<div class="field-block"><div class="field-label">해설</div><div class="field-text">${escHtml(d.explanation)}</div></div>` : ''}
-      ${!d.question && !d.explanation ? `<div class="field-empty" style="margin-top:12px">내용이 없습니다.</div>` : ''}
-    `;
+    const titleText = d.question
+      ? (d.question.length > 40 ? d.question.slice(0, 40) + '…' : d.question)
+      : (d.note || `${d.qnum}번 문제`);
 
     const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
     const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
+
+    const legacyContent = d.note && !d.question ? `
+      <div class="field-block"><div class="field-label">메모</div><div class="field-text">${escHtml(d.note)}</div></div>` : '';
+
+    const quizContent = !legacyContent ? buildQuizHtml(d, 'l') : '';
+
+    const editChoicesHtml = [1,2,3,4].map(i => `
+      <div class="choice-input-row">
+        <span class="choice-num">${['①','②','③','④'][i-1]}</span>
+        <input type="text" id="ec${i}-${d.id}" value="${escAttr((d.choices||[])[i-1]||'')}" placeholder="${i}번 선지" />
+      </div>`).join('');
 
     return `
     <div class="wrong-item ${countClass}" id="item-${d.id}">
@@ -657,33 +813,48 @@ function renderList() {
           <div class="q-meta">${escHtml(d.round)} · ${escHtml(d.qnum)}번</div>
         </div>
         <span class="badge ${badgeClass}">✗ ${d.count}회</span>
-        <button class="btn-count" onclick="incrementCount(event,'${d.id}')" title="틀린 횟수 +1">+</button>
+        <button class="btn-count" onclick="incrementCount(event,'${d.id}')" title="+1">+</button>
         <span class="chevron">▼</span>
       </div>
       <div class="wrong-item-body">
-        <div id="note-view-${d.id}">${bodyContent}</div>
+        <div id="note-view-${d.id}">
+          ${legacyContent || quizContent}
+        </div>
         <div id="edit-form-${d.id}" class="edit-form" style="display:none">
           <div class="form-row">
             <div class="form-group">
               <label>회차</label>
-              <input type="text" id="edit-round-${d.id}" value="${escAttr(d.round)}" />
+              <input type="text" id="er-${d.id}" value="${escAttr(d.round)}" />
             </div>
             <div class="form-group">
               <label>문제 번호</label>
-              <input type="number" id="edit-qnum-${d.id}" value="${escAttr(d.qnum)}" min="1" />
+              <input type="number" id="eq-${d.id}" value="${escAttr(d.qnum)}" min="1" />
             </div>
           </div>
           <div class="form-group">
-            <label>틀린 횟수</label>
-            <input type="number" id="edit-count-${d.id}" value="${d.count}" min="1" max="99" />
+            <label>문제 내용</label>
+            <textarea id="eqt-${d.id}" style="min-height:80px">${escHtml(d.question || '')}</textarea>
           </div>
           <div class="form-group">
-            <label>문제 요약</label>
-            <input type="text" id="edit-question-${d.id}" value="${escAttr(d.question || '')}" />
+            <label>선지</label>
+            <div class="choices-grid">${editChoicesHtml}</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>정답 번호</label>
+              <select id="ea-${d.id}">
+                <option value="">선택</option>
+                ${[1,2,3,4].map(i => `<option value="${i}" ${d.answer==i?'selected':''}>${['①','②','③','④'][i-1]} ${i}번</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>틀린 횟수</label>
+              <input type="number" id="ec-${d.id}" value="${d.count}" min="1" max="99" />
+            </div>
           </div>
           <div class="form-group">
             <label>해설</label>
-            <textarea id="edit-explanation-${d.id}">${escHtml(d.explanation || d.note || '')}</textarea>
+            <textarea id="ee-${d.id}">${escHtml(d.explanation || d.note || '')}</textarea>
           </div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-primary btn-sm" onclick="saveEdit('${d.id}')">저장</button>
@@ -724,11 +895,16 @@ function cancelEdit(id) {
 function saveEdit(id) {
   const idx = data.findIndex(d => d.id === id);
   if (idx === -1) return;
-  data[idx].round = document.getElementById('edit-round-' + id).value.trim();
-  data[idx].qnum = document.getElementById('edit-qnum-' + id).value.trim();
-  data[idx].count = parseInt(document.getElementById('edit-count-' + id).value) || 1;
-  data[idx].question = document.getElementById('edit-question-' + id).value.trim();
-  data[idx].explanation = document.getElementById('edit-explanation-' + id).value.trim();
+  data[idx].round = document.getElementById('er-' + id).value.trim();
+  data[idx].qnum = document.getElementById('eq-' + id).value.trim();
+  data[idx].count = parseInt(document.getElementById('ec-' + id).value) || 1;
+  data[idx].question = document.getElementById('eqt-' + id).value.trim();
+  data[idx].choices = [1,2,3,4].map(i => {
+    const el = document.getElementById(`ec${i}-${id}`);
+    return el ? el.value.trim() : '';
+  });
+  data[idx].answer = parseInt(document.getElementById('ea-' + id).value) || null;
+  data[idx].explanation = document.getElementById('ee-' + id).value.trim();
   delete data[idx].note;
   save();
   updateRoundFilter();
@@ -746,54 +922,56 @@ function incrementCount(e, id) {
   toast(`${data[idx].qnum}번 — 틀린 횟수 ${data[idx].count}회`);
 }
 
+/* 가로모드 */
 let landscapeMode = false;
 let selectedId = null;
 
 function toggleLandscape() {
   landscapeMode = !landscapeMode;
   document.body.classList.toggle('landscape-mode', landscapeMode);
-  const btn = document.getElementById('layout-toggle');
-  btn.textContent = landscapeMode ? '☰' : '⇄';
-  if (landscapeMode) {
-    renderLandscapeList();
-    renderDetail(selectedId);
-  }
+  document.getElementById('layout-toggle').textContent = landscapeMode ? '☰' : '⇄';
+  if (landscapeMode) { renderLandscapeList(); renderDetail(selectedId); }
+}
+
+function buildLandscapeItem(d) {
+  const titleText = d.question
+    ? (d.question.length > 36 ? d.question.slice(0, 36) + '…' : d.question)
+    : (d.note || `${d.qnum}번 문제`);
+  const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
+  const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
+  const isSelected = d.id === selectedId ? 'selected' : '';
+  return `
+  <div class="wrong-item ${countClass} ${isSelected}" id="litem-${d.id}" onclick="selectItem('${d.id}')">
+    <div class="wrong-item-header" style="cursor:pointer">
+      <div class="q-number">${escHtml(d.qnum)}</div>
+      <div class="q-info">
+        <div class="q-title">${escHtml(titleText)}</div>
+        <div class="q-meta">${escHtml(d.round)}</div>
+      </div>
+      <span class="badge ${badgeClass}">✗ ${d.count}회</span>
+      <button class="btn-count" onclick="incrementCountL(event,'${d.id}')" title="+1">+</button>
+    </div>
+  </div>`;
 }
 
 function renderLandscapeList() {
   const list = filteredData();
   const left = document.getElementById('landscape-left');
+  const rounds = [...new Set(data.map(d => d.round))].sort();
+  const curRound = document.getElementById('filter-round')?.value || '';
 
   const filterHtml = `
     <div class="filter-bar" style="margin-bottom:10px">
       <select id="lf-round" onchange="onLandscapeFilter()" style="flex:1;min-width:0">
         <option value="">전체 회차</option>
-        ${[...new Set(data.map(d => d.round))].sort().map(r =>
-          `<option value="${escHtml(r)}" ${document.getElementById('filter-round')?.value === r ? 'selected' : ''}>${escHtml(r)}</option>`
-        ).join('')}
+        ${rounds.map(r => `<option value="${escHtml(r)}" ${curRound===r?'selected':''}>${escHtml(r)}</option>`).join('')}
       </select>
       <input type="text" id="lf-search" placeholder="검색..." oninput="onLandscapeFilter()" style="flex:1;min-width:0" />
-    </div>
-  `;
-
-  const itemsHtml = list.length ? list.map(d => {
-    const titleText = d.question || d.note || `${d.qnum}번 문제`;
-    const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
-    const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
-    const isSelected = d.id === selectedId ? 'selected' : '';
-    return `
-    <div class="wrong-item ${countClass} ${isSelected}" id="litem-${d.id}" onclick="selectItem('${d.id}')">
-      <div class="wrong-item-header" style="cursor:pointer">
-        <div class="q-number">${escHtml(d.qnum)}</div>
-        <div class="q-info">
-          <div class="q-title">${escHtml(titleText)}</div>
-          <div class="q-meta">${escHtml(d.round)}</div>
-        </div>
-        <span class="badge ${badgeClass}">✗ ${d.count}회</span>
-        <button class="btn-count" onclick="incrementCountL(event,'${d.id}')" title="+1">+</button>
-      </div>
     </div>`;
-  }).join('') : `<div class="empty"><div class="empty-icon">🔍</div><p>표시할 오답이 없습니다.</p></div>`;
+
+  const itemsHtml = list.length
+    ? list.map(buildLandscapeItem).join('')
+    : `<div class="empty"><div class="empty-icon">🔍</div><p>없습니다.</p></div>`;
 
   left.innerHTML = filterHtml + `<div class="wrong-list">${itemsHtml}</div>`;
 }
@@ -804,7 +982,7 @@ function onLandscapeFilter() {
   const list = data.filter(d => {
     if (round && d.round !== round) return false;
     if (search) {
-      const hay = [d.qnum, d.round, d.question, d.explanation, d.note].join(' ').toLowerCase();
+      const hay = [d.qnum, d.round, d.question, d.explanation, d.note, ...(d.choices||[])].join(' ').toLowerCase();
       if (!hay.includes(search)) return false;
     }
     return true;
@@ -814,26 +992,9 @@ function onLandscapeFilter() {
     return parseInt(a.qnum) - parseInt(b.qnum);
   });
 
-  const container = document.getElementById('landscape-left').querySelector('.wrong-list');
-  if (!container) return;
-  container.innerHTML = list.map(d => {
-    const titleText = d.question || d.note || `${d.qnum}번 문제`;
-    const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
-    const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
-    const isSelected = d.id === selectedId ? 'selected' : '';
-    return `
-    <div class="wrong-item ${countClass} ${isSelected}" id="litem-${d.id}" onclick="selectItem('${d.id}')">
-      <div class="wrong-item-header" style="cursor:pointer">
-        <div class="q-number">${escHtml(d.qnum)}</div>
-        <div class="q-info">
-          <div class="q-title">${escHtml(titleText)}</div>
-          <div class="q-meta">${escHtml(d.round)}</div>
-        </div>
-        <span class="badge ${badgeClass}">✗ ${d.count}회</span>
-        <button class="btn-count" onclick="incrementCountL(event,'${d.id}')" title="+1">+</button>
-      </div>
-    </div>`;
-  }).join('') || `<div class="empty"><div class="empty-icon">🔍</div><p>표시할 오답이 없습니다.</p></div>`;
+  const container = document.getElementById('landscape-left')?.querySelector('.wrong-list');
+  if (container) container.innerHTML = list.map(buildLandscapeItem).join('') ||
+    `<div class="empty"><div class="empty-icon">🔍</div><p>없습니다.</p></div>`;
 }
 
 function selectItem(id) {
@@ -852,26 +1013,26 @@ function renderDetail(id) {
   }
   const d = data.find(x => x.id === id);
   if (!d) return;
-  const titleText = d.question || d.note || `${d.qnum}번 문제`;
+
   const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
   const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
-  const bodyContent = (d.note && !d.question && !d.explanation) ? `
-    <div class="field-block"><div class="field-label">해설 / 메모</div><div class="field-text">${escHtml(d.note)}</div></div>
-  ` : `
-    ${d.question ? `<div class="field-block"><div class="field-label">문제 요약</div><div class="field-text">${escHtml(d.question)}</div></div>` : ''}
-    ${d.explanation ? `<div class="field-block"><div class="field-label">해설</div><div class="field-text">${escHtml(d.explanation)}</div></div>` : ''}
-    ${!d.question && !d.explanation ? `<div class="field-empty">내용이 없습니다.</div>` : ''}
-  `;
+  const titleText = d.question
+    ? (d.question.length > 50 ? d.question.slice(0, 50) + '…' : d.question)
+    : (d.note || `${d.qnum}번 문제`);
+
+  const bodyContent = (d.note && !d.question)
+    ? `<div class="field-block"><div class="field-label">메모</div><div class="field-text">${escHtml(d.note)}</div></div>`
+    : buildQuizHtml(d, 'd');
 
   right.innerHTML = `
     <div class="detail-panel">
       <div class="detail-header">
-        <div class="q-number ${countClass === 'count-2' ? 'wrong-item count-2' : countClass === 'count-3' ? 'wrong-item count-3' : ''}" style="width:44px;height:44px;background:var(--primary-light);color:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0">${escHtml(d.qnum)}</div>
-        <div>
-          <div class="q-title" style="font-size:1.05rem;font-weight:600">${escHtml(titleText)}</div>
-          <div class="q-meta" style="font-size:0.8rem;color:var(--muted);margin-top:3px">${escHtml(d.round)} · ${escHtml(d.qnum)}번 · <span class="badge ${badgeClass}">✗ ${d.count}회</span></div>
+        <div class="q-number ${countClass}" style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0">${escHtml(d.qnum)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="q-title">${escHtml(d.round)} · ${escHtml(d.qnum)}번</div>
+          <div class="q-meta"><span class="badge ${badgeClass}">✗ ${d.count}회</span></div>
         </div>
-        <button class="btn-count" onclick="incrementCountD('${d.id}')" title="+1" style="margin-left:auto">+</button>
+        <button class="btn-count" onclick="incrementCountD('${d.id}')" title="+1">+</button>
       </div>
       ${bodyContent}
     </div>`;
@@ -885,7 +1046,7 @@ function incrementCountL(e, id) {
   save();
   renderLandscapeList();
   if (selectedId === id) renderDetail(id);
-  toast(`${data[idx].qnum}번 — 틀린 횟수 ${data[idx].count}회`);
+  toast(`${data[idx].qnum}번 — ${data[idx].count}회`);
 }
 
 function incrementCountD(id) {
@@ -895,7 +1056,7 @@ function incrementCountD(id) {
   save();
   renderLandscapeList();
   renderDetail(id);
-  toast(`${data[idx].qnum}번 — 틀린 횟수 ${data[idx].count}회`);
+  toast(`${data[idx].qnum}번 — ${data[idx].count}회`);
 }
 
 function deleteEntry(id) {
@@ -912,23 +1073,8 @@ document.addEventListener('keydown', e => {
 });
 
 let deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('install-btn').style.display = 'inline-block';
-});
-
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-btn').style.display = 'none';
-  deferredPrompt = null;
-});
-
-function installApp() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+window.addEventListener('appinstalled', () => { deferredPrompt = null; });
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
