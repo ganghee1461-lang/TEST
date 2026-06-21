@@ -437,9 +437,6 @@ function renderList() {
         ${choicesHtml}
         ${q.explanation ? `<div class="section-label">해설</div><div class="explanation-box">${esc(q.explanation)}</div>` : ''}
         ${!q.question && !q.explanation ? '<div style="color:var(--muted);font-size:0.85rem;margin-top:12px">내용이 없습니다.</div>' : ''}
-        <div style="margin-top:12px">
-          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${q.id}')">✏️ 편집</button>
-        </div>
       </div>
     </div>`;
   }).join('');
@@ -536,7 +533,9 @@ async function submitAnswer(chosen) {
 
   if (isCorrect) {
     quizScore++;
-    document.getElementById('qresult').innerHTML = `<div class="quiz-result-box ok">✓ 정답입니다!</div>`;
+    document.getElementById('qresult').innerHTML = `
+      <div class="quiz-result-box ok">✓ 정답입니다!</div>
+      ${q.explanation ? `<div class="quiz-explanation">${esc(q.explanation)}</div>` : ''}`;
   } else {
     quizMissed.push(q);
     await incrementProgress(q.id);
@@ -545,13 +544,6 @@ async function submitAnswer(chosen) {
       ${q.explanation ? `<div class="quiz-explanation">${esc(q.explanation)}</div>` : ''}`;
   }
   document.getElementById('qnav').style.display = 'flex';
-  // 편집 버튼 추가
-  const editBtn = document.createElement('button');
-  editBtn.className = 'btn btn-ghost btn-sm';
-  editBtn.style.marginTop = '8px';
-  editBtn.textContent = '✏️ 문제 편집';
-  editBtn.onclick = () => openEditModal(q.id);
-  document.getElementById('qresult').appendChild(editBtn);
 }
 
 function nextQuestion() {
