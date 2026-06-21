@@ -17,6 +17,8 @@
       --primary-light: #eef2ff;
       --danger: #ef4444;
       --danger-light: #fef2f2;
+      --success: #10b981;
+      --success-light: #ecfdf5;
       --border: #e5e7eb;
       --text: #111827;
       --muted: #6b7280;
@@ -24,6 +26,8 @@
       --card: #ffffff;
       --radius: 12px;
     }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -57,13 +61,7 @@
       white-space: nowrap;
     }
 
-    .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #86efac;
-      flex-shrink: 0;
-    }
-
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #86efac; flex-shrink: 0; }
     .dot.syncing { background: #fde68a; animation: pulse 1s infinite; }
     .dot.error { background: #fca5a5; }
 
@@ -79,12 +77,7 @@
       margin-bottom: 16px;
     }
 
-    .card h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: var(--primary);
-    }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--primary); }
 
     .form-row {
       display: grid;
@@ -93,11 +86,10 @@
       margin-bottom: 12px;
     }
 
-    @media (max-width: 480px) {
-      .form-row { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
 
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .form-group:last-of-type { margin-bottom: 0; }
 
     label { font-size: 0.8rem; font-weight: 500; color: var(--muted); }
 
@@ -137,11 +129,7 @@
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { opacity: 0.9; }
     .btn-danger { background: var(--danger); color: #fff; }
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
     .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
 
     .filter-bar {
@@ -152,11 +140,7 @@
       margin-bottom: 16px;
     }
 
-    .filter-bar select, .filter-bar input {
-      flex: 1;
-      min-width: 120px;
-      max-width: 200px;
-    }
+    .filter-bar select, .filter-bar input { flex: 1; min-width: 120px; max-width: 200px; }
 
     .badge {
       display: inline-block;
@@ -215,13 +199,7 @@
 
     .q-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
 
-    .chevron {
-      color: var(--muted);
-      transition: transform 0.2s;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-
+    .chevron { color: var(--muted); transition: transform 0.2s; font-size: 1rem; flex-shrink: 0; }
     .wrong-item.open .chevron { transform: rotate(180deg); }
 
     .wrong-item-body {
@@ -232,39 +210,42 @@
 
     .wrong-item.open .wrong-item-body { display: block; }
 
-    .explanation-label {
-      font-size: 0.78rem;
-      font-weight: 600;
+    .field-block { margin-top: 12px; }
+
+    .field-label {
+      font-size: 0.72rem;
+      font-weight: 700;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-      margin-top: 12px;
+      letter-spacing: 0.06em;
+      margin-bottom: 5px;
     }
 
-    .explanation-text {
+    .field-answer {
+      background: var(--success-light);
+      border-left: 3px solid var(--success);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .field-text {
       font-size: 0.9rem;
       line-height: 1.6;
       color: var(--text);
       white-space: pre-wrap;
     }
 
-    .explanation-empty { color: var(--muted); font-style: italic; font-size: 0.9rem; }
+    .field-empty { color: var(--muted); font-style: italic; font-size: 0.85rem; }
 
-    .item-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
+    .item-actions { display: flex; gap: 8px; margin-top: 14px; }
 
     .edit-form { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
 
-    .empty {
-      text-align: center;
-      padding: 48px 20px;
-      color: var(--muted);
-    }
-
+    .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
     .empty-icon { font-size: 3rem; margin-bottom: 12px; }
     .empty p { font-size: 0.9rem; }
 
@@ -286,11 +267,7 @@
 
     #toast.show { transform: translateX(-50%) translateY(0); }
 
-    .tabs {
-      display: flex;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: 16px;
-    }
+    .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
 
     .tab {
       padding: 10px 18px;
@@ -328,9 +305,7 @@
     <h1>📝 오답 노트</h1>
     <p>틀린 문제를 기록하고 복습하세요</p>
   </div>
-  <button id="install-btn" onclick="installApp()" style="display:none;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:6px 12px;font-size:0.8rem;font-weight:600;cursor:pointer;margin-right:10px">
-    앱 설치
-  </button>
+  <button id="install-btn" onclick="installApp()" style="display:none;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:6px 12px;font-size:0.8rem;font-weight:600;cursor:pointer;margin-right:10px">앱 설치</button>
   <div id="sync-status">
     <div class="dot" id="sync-dot"></div>
     <span id="sync-text">로딩 중...</span>
@@ -358,13 +333,21 @@
           <input type="number" id="inp-qnum" placeholder="예: 15" min="1" />
         </div>
       </div>
-      <div class="form-group" style="margin-bottom:12px">
+      <div class="form-group">
         <label>틀린 횟수</label>
         <input type="number" id="inp-count" value="1" min="1" max="99" />
       </div>
-      <div class="form-group" style="margin-bottom:12px">
-        <label>해설 / 메모</label>
-        <textarea id="inp-note" placeholder="풀이 방법, 핵심 개념, 틀린 이유 등을 적어보세요."></textarea>
+      <div class="form-group">
+        <label>문제 요약</label>
+        <input type="text" id="inp-question" placeholder="어떤 문제인지 한 줄로" />
+      </div>
+      <div class="form-group">
+        <label>정답 선지</label>
+        <textarea id="inp-answer" placeholder="정답 내용"></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label>해설</label>
+        <textarea id="inp-explanation" placeholder="전체 개념 정리"></textarea>
       </div>
       <button class="btn btn-primary" onclick="addEntry()">추가하기</button>
     </div>
@@ -396,14 +379,12 @@ let data = [];
 let currentSha = null;
 let saveTimer = null;
 
-/* ── 동기화 상태 표시 ── */
 function setSyncStatus(state, text) {
   document.getElementById('sync-text').textContent = text;
   const dot = document.getElementById('sync-dot');
   dot.className = 'dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
 }
 
-/* ── GitHub API (Pages Function 경유) ── */
 async function fetchData() {
   setSyncStatus('syncing', '불러오는 중...');
   try {
@@ -437,7 +418,6 @@ async function pushData() {
   }
 }
 
-/* 변경 시 0.8초 디바운스 후 저장 */
 function save() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(pushData, 800);
@@ -454,7 +434,6 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-/* ── 탭 ── */
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
     t.classList.toggle('active', ['add','list'][i] === name);
@@ -464,12 +443,13 @@ function switchTab(name) {
   if (name === 'list') { updateRoundFilter(); renderList(); }
 }
 
-/* ── 추가 ── */
 function addEntry() {
   const round = document.getElementById('inp-round').value.trim();
   const qnum = document.getElementById('inp-qnum').value.trim();
   const count = parseInt(document.getElementById('inp-count').value) || 1;
-  const note = document.getElementById('inp-note').value.trim();
+  const question = document.getElementById('inp-question').value.trim();
+  const answer = document.getElementById('inp-answer').value.trim();
+  const explanation = document.getElementById('inp-explanation').value.trim();
 
   if (!round) { toast('회차를 입력해주세요.'); return; }
   if (!qnum) { toast('문제 번호를 입력해주세요.'); return; }
@@ -477,21 +457,25 @@ function addEntry() {
   const existing = data.find(d => d.round === round && d.qnum === qnum);
   if (existing) {
     existing.count += count;
-    existing.note = note || existing.note;
+    if (question) existing.question = question;
+    if (answer) existing.answer = answer;
+    if (explanation) existing.explanation = explanation;
+    delete existing.note;
     toast(`${round} ${qnum}번 — 틀린 횟수 ${existing.count}회로 업데이트`);
   } else {
-    data.push({ id: genId(), round, qnum, count, note, createdAt: Date.now() });
+    data.push({ id: genId(), round, qnum, count, question, answer, explanation, createdAt: Date.now() });
     toast('오답이 추가됐습니다.');
   }
 
   save();
   document.getElementById('inp-qnum').value = '';
   document.getElementById('inp-count').value = '1';
-  document.getElementById('inp-note').value = '';
+  document.getElementById('inp-question').value = '';
+  document.getElementById('inp-answer').value = '';
+  document.getElementById('inp-explanation').value = '';
   document.getElementById('inp-qnum').focus();
 }
 
-/* ── 필터 ── */
 function updateRoundFilter() {
   const rounds = [...new Set(data.map(d => d.round))].sort();
   const sel = document.getElementById('filter-round');
@@ -515,8 +499,10 @@ function filteredData() {
     if (countF === '1' && d.count !== 1) return false;
     if (countF === '2' && d.count !== 2) return false;
     if (countF === '3' && d.count < 3) return false;
-    if (search && !d.qnum.includes(search) && !d.round.toLowerCase().includes(search) &&
-        !d.note.toLowerCase().includes(search)) return false;
+    if (search) {
+      const hay = [d.qnum, d.round, d.question, d.answer, d.explanation, d.note].join(' ').toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
     return true;
   }).sort((a, b) => {
     if (a.round < b.round) return -1;
@@ -525,7 +511,6 @@ function filteredData() {
   });
 }
 
-/* ── 목록 렌더 ── */
 function renderList() {
   const list = filteredData();
   const el = document.getElementById('wrong-list');
@@ -535,24 +520,35 @@ function renderList() {
     return;
   }
 
-  el.innerHTML = list.map(d => `
+  el.innerHTML = list.map(d => {
+    const isLegacy = !d.question && !d.answer && !d.explanation && d.note;
+    const titleText = d.question || d.note || `${d.qnum}번 문제`;
+
+    const bodyContent = isLegacy ? `
+      <div class="field-block">
+        <div class="field-label">해설 / 메모</div>
+        <div class="field-text">${escHtml(d.note)}</div>
+      </div>
+    ` : `
+      ${d.question ? `<div class="field-block"><div class="field-label">문제 요약</div><div class="field-text">${escHtml(d.question)}</div></div>` : ''}
+      ${d.answer ? `<div class="field-block"><div class="field-label">정답 선지</div><div class="field-answer">${escHtml(d.answer)}</div></div>` : ''}
+      ${d.explanation ? `<div class="field-block"><div class="field-label">해설</div><div class="field-text">${escHtml(d.explanation)}</div></div>` : ''}
+      ${!d.question && !d.answer && !d.explanation ? `<div class="field-empty" style="margin-top:12px">내용이 없습니다.</div>` : ''}
+    `;
+
+    return `
     <div class="wrong-item" id="item-${d.id}">
       <div class="wrong-item-header" onclick="toggleItem('${d.id}')">
         <div class="q-number">${escHtml(d.qnum)}</div>
         <div class="q-info">
-          <div class="q-title">${escHtml(d.round)}</div>
-          <div class="q-meta">${escHtml(d.qnum)}번 문제</div>
+          <div class="q-title">${escHtml(titleText)}</div>
+          <div class="q-meta">${escHtml(d.round)} · ${escHtml(d.qnum)}번</div>
         </div>
         <span class="badge ${d.count >= 3 ? 'badge-red' : 'badge-purple'}">✗ ${d.count}회</span>
         <span class="chevron">▼</span>
       </div>
       <div class="wrong-item-body">
-        <div class="explanation-label">해설 / 메모</div>
-        <div id="note-view-${d.id}">
-          ${d.note
-            ? `<div class="explanation-text">${escHtml(d.note)}</div>`
-            : `<div class="explanation-empty">해설이 없습니다.</div>`}
-        </div>
+        <div id="note-view-${d.id}">${bodyContent}</div>
         <div id="edit-form-${d.id}" class="edit-form" style="display:none">
           <div class="form-row">
             <div class="form-group">
@@ -564,13 +560,21 @@ function renderList() {
               <input type="number" id="edit-qnum-${d.id}" value="${escAttr(d.qnum)}" min="1" />
             </div>
           </div>
-          <div class="form-group" style="margin-bottom:4px">
+          <div class="form-group">
             <label>틀린 횟수</label>
             <input type="number" id="edit-count-${d.id}" value="${d.count}" min="1" max="99" />
           </div>
           <div class="form-group">
-            <label>해설 / 메모</label>
-            <textarea id="edit-note-${d.id}">${escHtml(d.note)}</textarea>
+            <label>문제 요약</label>
+            <input type="text" id="edit-question-${d.id}" value="${escAttr(d.question || '')}" />
+          </div>
+          <div class="form-group">
+            <label>정답 선지</label>
+            <textarea id="edit-answer-${d.id}">${escHtml(d.answer || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>해설</label>
+            <textarea id="edit-explanation-${d.id}">${escHtml(d.explanation || d.note || '')}</textarea>
           </div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-primary btn-sm" onclick="saveEdit('${d.id}')">저장</button>
@@ -582,8 +586,8 @@ function renderList() {
           <button class="btn btn-danger btn-sm" onclick="deleteEntry('${d.id}')">삭제</button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function toggleItem(id) {
@@ -614,7 +618,10 @@ function saveEdit(id) {
   data[idx].round = document.getElementById('edit-round-' + id).value.trim();
   data[idx].qnum = document.getElementById('edit-qnum-' + id).value.trim();
   data[idx].count = parseInt(document.getElementById('edit-count-' + id).value) || 1;
-  data[idx].note = document.getElementById('edit-note-' + id).value.trim();
+  data[idx].question = document.getElementById('edit-question-' + id).value.trim();
+  data[idx].answer = document.getElementById('edit-answer-' + id).value.trim();
+  data[idx].explanation = document.getElementById('edit-explanation-' + id).value.trim();
+  delete data[idx].note;
   save();
   updateRoundFilter();
   renderList();
@@ -634,7 +641,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.id === 'inp-qnum') addEntry();
 });
 
-/* ── PWA 설치 ── */
 let deferredPrompt = null;
 
 window.addEventListener('beforeinstallprompt', e => {
@@ -658,7 +664,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
 
-/* ── 초기 로드 ── */
 document.getElementById('wrong-list').innerHTML = `<div class="skeleton"></div><div class="skeleton" style="margin-top:12px"></div>`;
 fetchData().then(() => { updateRoundFilter(); });
 </script>
