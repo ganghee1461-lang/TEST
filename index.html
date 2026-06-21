@@ -168,12 +168,12 @@
 
 <div class="container">
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('list')">오답 목록</button>
-    <button class="tab" onclick="switchTab('play')">문제 풀기</button>
+    <button class="tab active" onclick="switchTab('play')">문제 풀기</button>
+    <button class="tab" onclick="switchTab('list')">오답 목록</button>
   </div>
 
   <!-- ── 오답 목록 ── -->
-  <div id="tab-list" class="tab-content active">
+  <div id="tab-list" class="tab-content">
     <div class="filter-bar">
       <select id="filter-round" onchange="renderList()"><option value="">전체 회차</option></select>
       <select id="filter-count" onchange="renderList()">
@@ -190,7 +190,7 @@
   </div>
 
   <!-- ── 문제 풀기 ── -->
-  <div id="tab-play" class="tab-content">
+  <div id="tab-play" class="tab-content active">
     <div id="quiz-setup">
       <div class="card">
         <h2 style="font-size:1rem;font-weight:600;margin-bottom:16px;color:var(--primary)">🎯 문제 풀기</h2>
@@ -367,7 +367,7 @@ function populateRoundSelects() {
 
 /* ── Tabs ── */
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['list','play'][i]===name));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['play','list'][i]===name));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if (name === 'list') { populateRoundSelects(); renderList(); }
