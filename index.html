@@ -151,7 +151,31 @@
     }
 
     .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-orange { background: #fff7ed; color: #ea580c; }
     .badge-purple { background: var(--primary-light); color: var(--primary); }
+
+    .wrong-item.count-1 { border-left: 3px solid var(--primary); }
+    .wrong-item.count-2 { border-left: 3px solid #ea580c; }
+    .wrong-item.count-3 { border-left: 3px solid var(--danger); }
+
+    .btn-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      background: #f3f4f6;
+      color: var(--muted);
+      transition: background 0.15s, transform 0.1s;
+      line-height: 1;
+    }
+    .btn-count:hover { background: var(--border); }
+    .btn-count:active { transform: scale(0.9); }
 
     .wrong-list { display: flex; flex-direction: column; gap: 12px; }
 
@@ -528,15 +552,19 @@ function renderList() {
       ${!d.question && !d.explanation ? `<div class="field-empty" style="margin-top:12px">내용이 없습니다.</div>` : ''}
     `;
 
+    const countClass = d.count >= 3 ? 'count-3' : d.count === 2 ? 'count-2' : 'count-1';
+    const badgeClass = d.count >= 3 ? 'badge-red' : d.count === 2 ? 'badge-orange' : 'badge-purple';
+
     return `
-    <div class="wrong-item" id="item-${d.id}">
+    <div class="wrong-item ${countClass}" id="item-${d.id}">
       <div class="wrong-item-header" onclick="toggleItem('${d.id}')">
         <div class="q-number">${escHtml(d.qnum)}</div>
         <div class="q-info">
           <div class="q-title">${escHtml(titleText)}</div>
           <div class="q-meta">${escHtml(d.round)} · ${escHtml(d.qnum)}번</div>
         </div>
-        <span class="badge ${d.count >= 3 ? 'badge-red' : 'badge-purple'}">✗ ${d.count}회</span>
+        <span class="badge ${badgeClass}">✗ ${d.count}회</span>
+        <button class="btn-count" onclick="incrementCount(event,'${d.id}')" title="틀린 횟수 +1">+</button>
         <span class="chevron">▼</span>
       </div>
       <div class="wrong-item-body">
@@ -613,6 +641,16 @@ function saveEdit(id) {
   updateRoundFilter();
   renderList();
   toast('수정됐습니다.');
+}
+
+function incrementCount(e, id) {
+  e.stopPropagation();
+  const idx = data.findIndex(d => d.id === id);
+  if (idx === -1) return;
+  data[idx].count += 1;
+  save();
+  renderList();
+  toast(`${data[idx].qnum}번 — 틀린 횟수 ${data[idx].count}회`);
 }
 
 function deleteEntry(id) {
