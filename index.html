@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오답 노트</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #eef2ff;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --success: #10b981;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+    }
+
+    header h1 { font-size: 1.2rem; font-weight: 700; }
+    header p { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+
+    /* 입력 카드 */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+
+    label { font-size: 0.8rem; font-weight: 500; color: var(--muted); }
+
+    input, select, textarea {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }
+
+    textarea { resize: vertical; min-height: 72px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+    /* 필터 */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .filter-bar select, .filter-bar input {
+      flex: 1;
+      min-width: 120px;
+      max-width: 200px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-purple { background: var(--primary-light); color: var(--primary); }
+
+    /* 오답 목록 */
+    .wrong-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .wrong-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow 0.15s;
+    }
+
+    .wrong-item:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+
+    .wrong-item-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .wrong-item-header:hover { background: var(--bg); }
+
+    .q-number {
+      width: 36px; height: 36px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .q-info { flex: 1; min-width: 0; }
+
+    .q-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .q-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    .chevron {
+      color: var(--muted);
+      transition: transform 0.2s;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .wrong-item.open .chevron { transform: rotate(180deg); }
+
+    .wrong-item-body {
+      display: none;
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .wrong-item.open .wrong-item-body { display: block; }
+
+    .explanation-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+      margin-top: 12px;
+    }
+
+    .explanation-text {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .explanation-empty { color: var(--muted); font-style: italic; font-size: 0.9rem; }
+
+    .item-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* 편집 모드 */
+    .edit-form { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* 통계 */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    /* 빈 상태 */
+    .empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty p { font-size: 0.9rem; }
+
+    /* 토스트 */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1f2937;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 99px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: transform 0.3s;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* 탭 */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 16px;
+      gap: 0;
+    }
+
+    .tab {
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s;
+    }
+
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📝 오답 노트</h1>
+  <p>틀린 문제를 기록하고 복습하세요</p>
+</header>
+
+<div class="container">
+
+  <!-- 탭 -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('add')">문제 추가</button>
+    <button class="tab" onclick="switchTab('list')">오답 목록</button>
+    <button class="tab" onclick="switchTab('stats')">통계</button>
+  </div>
+
+  <!-- 추가 탭 -->
+  <div id="tab-add" class="tab-content active">
+    <div class="card">
+      <h2>✏️ 오답 입력</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>회차</label>
+          <input type="text" id="inp-round" placeholder="예: 2024년 1회" />
+        </div>
+        <div class="form-group">
+          <label>문제 번호</label>
+          <input type="number" id="inp-qnum" placeholder="예: 15" min="1" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>과목 / 영역 (선택)</label>
+          <input type="text" id="inp-subject" placeholder="예: 수학, 영어" />
+        </div>
+        <div class="form-group">
+          <label>틀린 횟수</label>
+          <input type="number" id="inp-count" value="1" min="1" max="99" />
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>해설 / 메모</label>
+        <textarea id="inp-note" placeholder="풀이 방법, 핵심 개념, 틀린 이유 등을 적어보세요."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="addEntry()">추가하기</button>
+    </div>
+  </div>
+
+  <!-- 목록 탭 -->
+  <div id="tab-list" class="tab-content">
+    <div class="filter-bar">
+      <select id="filter-round" onchange="renderList()">
+        <option value="">전체 회차</option>
+      </select>
+      <select id="filter-count" onchange="renderList()">
+        <option value="">전체 횟수</option>
+        <option value="1">1회</option>
+        <option value="2">2회</option>
+        <option value="3">3회 이상</option>
+      </select>
+      <input type="text" id="filter-search" placeholder="검색..." oninput="renderList()" style="max-width:160px" />
+    </div>
+    <div id="wrong-list" class="wrong-list"></div>
+  </div>
+
+  <!-- 통계 탭 -->
+  <div id="tab-stats" class="tab-content">
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-value" id="st-total">0</div>
+        <div class="stat-label">총 오답 수</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="st-rounds">0</div>
+        <div class="stat-label">회차 수</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="st-multi">0</div>
+        <div class="stat-label">반복 오답</div>
+      </div>
+    </div>
+    <div id="round-stats"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'wrongnote_v1';
+
+let data = [];
+
+function load() {
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { data = []; }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+/* ── 탭 ── */
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['add','list','stats'][i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'list') { updateRoundFilter(); renderList(); }
+  if (name === 'stats') renderStats();
+}
+
+/* ── 추가 ── */
+function addEntry() {
+  const round = document.getElementById('inp-round').value.trim();
+  const qnum = document.getElementById('inp-qnum').value.trim();
+  const subject = document.getElementById('inp-subject').value.trim();
+  const count = parseInt(document.getElementById('inp-count').value) || 1;
+  const note = document.getElementById('inp-note').value.trim();
+
+  if (!round) { toast('회차를 입력해주세요.'); return; }
+  if (!qnum) { toast('문제 번호를 입력해주세요.'); return; }
+
+  // 같은 회차 + 문제번호면 횟수 증가
+  const existing = data.find(d => d.round === round && d.qnum === qnum);
+  if (existing) {
+    existing.count += count;
+    existing.note = note || existing.note;
+    existing.subject = subject || existing.subject;
+    save();
+    toast(`${round} ${qnum}번 — 틀린 횟수 ${existing.count}회로 업데이트`);
+  } else {
+    data.push({ id: genId(), round, qnum, subject, count, note, createdAt: Date.now() });
+    save();
+    toast('오답이 추가됐습니다.');
+  }
+
+  // 초기화 (회차는 유지)
+  document.getElementById('inp-qnum').value = '';
+  document.getElementById('inp-subject').value = '';
+  document.getElementById('inp-count').value = '1';
+  document.getElementById('inp-note').value = '';
+  document.getElementById('inp-qnum').focus();
+}
+
+/* ── 필터 ── */
+function updateRoundFilter() {
+  const rounds = [...new Set(data.map(d => d.round))].sort();
+  const sel = document.getElementById('filter-round');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">전체 회차</option>';
+  rounds.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r; o.textContent = r;
+    if (r === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function filteredData() {
+  const round = document.getElementById('filter-round').value;
+  const countF = document.getElementById('filter-count').value;
+  const search = document.getElementById('filter-search').value.toLowerCase();
+
+  return data.filter(d => {
+    if (round && d.round !== round) return false;
+    if (countF === '1' && d.count !== 1) return false;
+    if (countF === '2' && d.count !== 2) return false;
+    if (countF === '3' && d.count < 3) return false;
+    if (search && !d.qnum.includes(search) && !d.round.toLowerCase().includes(search) &&
+        !d.subject.toLowerCase().includes(search) && !d.note.toLowerCase().includes(search)) return false;
+    return true;
+  }).sort((a, b) => {
+    if (a.round < b.round) return -1;
+    if (a.round > b.round) return 1;
+    return parseInt(a.qnum) - parseInt(b.qnum);
+  });
+}
+
+/* ── 목록 렌더 ── */
+function renderList() {
+  const list = filteredData();
+  const el = document.getElementById('wrong-list');
+
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>표시할 오답이 없습니다.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(d => `
+    <div class="wrong-item" id="item-${d.id}">
+      <div class="wrong-item-header" onclick="toggleItem('${d.id}')">
+        <div class="q-number">${escHtml(d.qnum)}</div>
+        <div class="q-info">
+          <div class="q-title">${escHtml(d.round)}${d.subject ? ' · ' + escHtml(d.subject) : ''}</div>
+          <div class="q-meta">${d.qnum}번 문제</div>
+        </div>
+        <span class="badge ${d.count >= 3 ? 'badge-red' : 'badge-purple'}">✗ ${d.count}회</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="wrong-item-body">
+        <div class="explanation-label">해설 / 메모</div>
+        <div id="note-view-${d.id}">
+          ${d.note
+            ? `<div class="explanation-text">${escHtml(d.note)}</div>`
+            : `<div class="explanation-empty">해설이 없습니다.</div>`}
+        </div>
+        <div id="edit-form-${d.id}" class="edit-form" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label>회차</label>
+              <input type="text" id="edit-round-${d.id}" value="${escAttr(d.round)}" />
+            </div>
+            <div class="form-group">
+              <label>문제 번호</label>
+              <input type="number" id="edit-qnum-${d.id}" value="${escAttr(d.qnum)}" min="1" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>과목 / 영역</label>
+              <input type="text" id="edit-subject-${d.id}" value="${escAttr(d.subject)}" />
+            </div>
+            <div class="form-group">
+              <label>틀린 횟수</label>
+              <input type="number" id="edit-count-${d.id}" value="${d.count}" min="1" max="99" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>해설 / 메모</label>
+            <textarea id="edit-note-${d.id}">${escHtml(d.note)}</textarea>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="saveEdit('${d.id}')">저장</button>
+            <button class="btn btn-ghost btn-sm" onclick="cancelEdit('${d.id}')">취소</button>
+          </div>
+        </div>
+        <div class="item-actions" id="actions-${d.id}">
+          <button class="btn btn-ghost btn-sm" onclick="startEdit('${d.id}')">편집</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEntry('${d.id}')">삭제</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleItem(id) {
+  document.getElementById('item-' + id).classList.toggle('open');
+}
+
+function escHtml(s = '') {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escAttr(s = '') { return escHtml(s); }
+
+/* ── 편집 ── */
+function startEdit(id) {
+  document.getElementById('note-view-' + id).style.display = 'none';
+  document.getElementById('actions-' + id).style.display = 'none';
+  document.getElementById('edit-form-' + id).style.display = 'flex';
+}
+
+function cancelEdit(id) {
+  document.getElementById('note-view-' + id).style.display = 'block';
+  document.getElementById('actions-' + id).style.display = 'flex';
+  document.getElementById('edit-form-' + id).style.display = 'none';
+}
+
+function saveEdit(id) {
+  const idx = data.findIndex(d => d.id === id);
+  if (idx === -1) return;
+  data[idx].round = document.getElementById('edit-round-' + id).value.trim();
+  data[idx].qnum = document.getElementById('edit-qnum-' + id).value.trim();
+  data[idx].subject = document.getElementById('edit-subject-' + id).value.trim();
+  data[idx].count = parseInt(document.getElementById('edit-count-' + id).value) || 1;
+  data[idx].note = document.getElementById('edit-note-' + id).value.trim();
+  save();
+  updateRoundFilter();
+  renderList();
+  toast('수정됐습니다.');
+}
+
+function deleteEntry(id) {
+  if (!confirm('이 오답을 삭제할까요?')) return;
+  data = data.filter(d => d.id !== id);
+  save();
+  updateRoundFilter();
+  renderList();
+  toast('삭제됐습니다.');
+}
+
+/* ── 통계 ── */
+function renderStats() {
+  document.getElementById('st-total').textContent = data.length;
+  document.getElementById('st-rounds').textContent = new Set(data.map(d => d.round)).size;
+  document.getElementById('st-multi').textContent = data.filter(d => d.count >= 2).length;
+
+  const byRound = {};
+  data.forEach(d => {
+    if (!byRound[d.round]) byRound[d.round] = [];
+    byRound[d.round].push(d);
+  });
+
+  const rounds = Object.keys(byRound).sort();
+  document.getElementById('round-stats').innerHTML = rounds.map(r => {
+    const items = byRound[r].sort((a, b) => parseInt(a.qnum) - parseInt(b.qnum));
+    return `
+      <div class="card" style="margin-bottom:12px">
+        <h2 style="margin-bottom:12px">📋 ${escHtml(r)}</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${items.map(d => `
+            <span class="badge ${d.count >= 3 ? 'badge-red' : 'badge-purple'}" style="font-size:0.85rem;padding:4px 10px">
+              ${escHtml(d.qnum)}번 <small style="opacity:0.8">(${d.count}회)</small>
+            </span>
+          `).join('')}
+        </div>
+        <div style="margin-top:10px;font-size:0.8rem;color:var(--muted)">
+          총 ${items.length}문제 · 반복오답 ${items.filter(d=>d.count>=2).length}문제
+        </div>
+      </div>
+    `;
+  }).join('') || '<div class="empty"><div class="empty-icon">📊</div><p>데이터가 없습니다.</p></div>';
+}
+
+/* ── 엔터키 지원 ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'inp-qnum') addEntry();
+});
+
+/* ── 초기화 ── */
+load();
+updateRoundFilter();
+</script>
+</body>
+</html>
