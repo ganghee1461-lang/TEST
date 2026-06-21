@@ -341,10 +341,6 @@
         <label>문제 요약</label>
         <input type="text" id="inp-question" placeholder="어떤 문제인지 한 줄로" />
       </div>
-      <div class="form-group">
-        <label>정답 선지</label>
-        <textarea id="inp-answer" placeholder="정답 내용"></textarea>
-      </div>
       <div class="form-group" style="margin-bottom:16px">
         <label>해설</label>
         <textarea id="inp-explanation" placeholder="전체 개념 정리"></textarea>
@@ -448,7 +444,6 @@ function addEntry() {
   const qnum = document.getElementById('inp-qnum').value.trim();
   const count = parseInt(document.getElementById('inp-count').value) || 1;
   const question = document.getElementById('inp-question').value.trim();
-  const answer = document.getElementById('inp-answer').value.trim();
   const explanation = document.getElementById('inp-explanation').value.trim();
 
   if (!round) { toast('회차를 입력해주세요.'); return; }
@@ -458,12 +453,11 @@ function addEntry() {
   if (existing) {
     existing.count += count;
     if (question) existing.question = question;
-    if (answer) existing.answer = answer;
     if (explanation) existing.explanation = explanation;
     delete existing.note;
     toast(`${round} ${qnum}번 — 틀린 횟수 ${existing.count}회로 업데이트`);
   } else {
-    data.push({ id: genId(), round, qnum, count, question, answer, explanation, createdAt: Date.now() });
+    data.push({ id: genId(), round, qnum, count, question, explanation, createdAt: Date.now() });
     toast('오답이 추가됐습니다.');
   }
 
@@ -471,7 +465,6 @@ function addEntry() {
   document.getElementById('inp-qnum').value = '';
   document.getElementById('inp-count').value = '1';
   document.getElementById('inp-question').value = '';
-  document.getElementById('inp-answer').value = '';
   document.getElementById('inp-explanation').value = '';
   document.getElementById('inp-qnum').focus();
 }
@@ -531,9 +524,8 @@ function renderList() {
       </div>
     ` : `
       ${d.question ? `<div class="field-block"><div class="field-label">문제 요약</div><div class="field-text">${escHtml(d.question)}</div></div>` : ''}
-      ${d.answer ? `<div class="field-block"><div class="field-label">정답 선지</div><div class="field-answer">${escHtml(d.answer)}</div></div>` : ''}
       ${d.explanation ? `<div class="field-block"><div class="field-label">해설</div><div class="field-text">${escHtml(d.explanation)}</div></div>` : ''}
-      ${!d.question && !d.answer && !d.explanation ? `<div class="field-empty" style="margin-top:12px">내용이 없습니다.</div>` : ''}
+      ${!d.question && !d.explanation ? `<div class="field-empty" style="margin-top:12px">내용이 없습니다.</div>` : ''}
     `;
 
     return `
@@ -567,10 +559,6 @@ function renderList() {
           <div class="form-group">
             <label>문제 요약</label>
             <input type="text" id="edit-question-${d.id}" value="${escAttr(d.question || '')}" />
-          </div>
-          <div class="form-group">
-            <label>정답 선지</label>
-            <textarea id="edit-answer-${d.id}">${escHtml(d.answer || '')}</textarea>
           </div>
           <div class="form-group">
             <label>해설</label>
@@ -619,7 +607,6 @@ function saveEdit(id) {
   data[idx].qnum = document.getElementById('edit-qnum-' + id).value.trim();
   data[idx].count = parseInt(document.getElementById('edit-count-' + id).value) || 1;
   data[idx].question = document.getElementById('edit-question-' + id).value.trim();
-  data[idx].answer = document.getElementById('edit-answer-' + id).value.trim();
   data[idx].explanation = document.getElementById('edit-explanation-' + id).value.trim();
   delete data[idx].note;
   save();
