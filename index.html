@@ -12,7 +12,6 @@
       --primary-light: #eef2ff;
       --danger: #ef4444;
       --danger-light: #fef2f2;
-      --success: #10b981;
       --border: #e5e7eb;
       --text: #111827;
       --muted: #6b7280;
@@ -43,7 +42,6 @@
 
     .container { max-width: 720px; margin: 0 auto; padding: 16px; }
 
-    /* 입력 카드 */
     .card {
       background: var(--card);
       border-radius: var(--radius);
@@ -57,9 +55,6 @@
       font-weight: 600;
       margin-bottom: 16px;
       color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .form-row {
@@ -110,7 +105,6 @@
     }
 
     .btn:active { transform: scale(0.97); }
-
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { opacity: 0.9; }
     .btn-danger { background: var(--danger); color: #fff; }
@@ -119,10 +113,8 @@
       color: var(--muted);
       border: 1px solid var(--border);
     }
-
     .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
 
-    /* 필터 */
     .filter-bar {
       display: flex;
       gap: 8px;
@@ -148,7 +140,6 @@
     .badge-red { background: var(--danger-light); color: var(--danger); }
     .badge-purple { background: var(--primary-light); color: var(--primary); }
 
-    /* 오답 목록 */
     .wrong-list { display: flex; flex-direction: column; gap: 12px; }
 
     .wrong-item {
@@ -237,29 +228,8 @@
       margin-top: 14px;
     }
 
-    /* 편집 모드 */
     .edit-form { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
 
-    /* 통계 */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .stat-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-      text-align: center;
-    }
-
-    .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
-    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-
-    /* 빈 상태 */
     .empty {
       text-align: center;
       padding: 48px 20px;
@@ -269,7 +239,6 @@
     .empty-icon { font-size: 3rem; margin-bottom: 12px; }
     .empty p { font-size: 0.9rem; }
 
-    /* 토스트 */
     #toast {
       position: fixed;
       bottom: 24px;
@@ -288,12 +257,10 @@
 
     #toast.show { transform: translateX(-50%) translateY(0); }
 
-    /* 탭 */
     .tabs {
       display: flex;
       border-bottom: 2px solid var(--border);
       margin-bottom: 16px;
-      gap: 0;
     }
 
     .tab {
@@ -324,11 +291,9 @@
 
 <div class="container">
 
-  <!-- 탭 -->
   <div class="tabs">
     <button class="tab active" onclick="switchTab('add')">문제 추가</button>
     <button class="tab" onclick="switchTab('list')">오답 목록</button>
-    <button class="tab" onclick="switchTab('stats')">통계</button>
   </div>
 
   <!-- 추가 탭 -->
@@ -345,15 +310,9 @@
           <input type="number" id="inp-qnum" placeholder="예: 15" min="1" />
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>과목 / 영역 (선택)</label>
-          <input type="text" id="inp-subject" placeholder="예: 수학, 영어" />
-        </div>
-        <div class="form-group">
-          <label>틀린 횟수</label>
-          <input type="number" id="inp-count" value="1" min="1" max="99" />
-        </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>틀린 횟수</label>
+        <input type="number" id="inp-count" value="1" min="1" max="99" />
       </div>
       <div class="form-group" style="margin-bottom:12px">
         <label>해설 / 메모</label>
@@ -380,32 +339,12 @@
     <div id="wrong-list" class="wrong-list"></div>
   </div>
 
-  <!-- 통계 탭 -->
-  <div id="tab-stats" class="tab-content">
-    <div class="stats-row">
-      <div class="stat-box">
-        <div class="stat-value" id="st-total">0</div>
-        <div class="stat-label">총 오답 수</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-value" id="st-rounds">0</div>
-        <div class="stat-label">회차 수</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-value" id="st-multi">0</div>
-        <div class="stat-label">반복 오답</div>
-      </div>
-    </div>
-    <div id="round-stats"></div>
-  </div>
-
 </div>
 
 <div id="toast"></div>
 
 <script>
 const STORAGE_KEY = 'wrongnote_v1';
-
 let data = [];
 
 function load() {
@@ -427,51 +366,42 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-/* ── 탭 ── */
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['add','list','stats'][i] === name);
+    t.classList.toggle('active', ['add','list'][i] === name);
   });
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   if (name === 'list') { updateRoundFilter(); renderList(); }
-  if (name === 'stats') renderStats();
 }
 
-/* ── 추가 ── */
 function addEntry() {
   const round = document.getElementById('inp-round').value.trim();
   const qnum = document.getElementById('inp-qnum').value.trim();
-  const subject = document.getElementById('inp-subject').value.trim();
   const count = parseInt(document.getElementById('inp-count').value) || 1;
   const note = document.getElementById('inp-note').value.trim();
 
   if (!round) { toast('회차를 입력해주세요.'); return; }
   if (!qnum) { toast('문제 번호를 입력해주세요.'); return; }
 
-  // 같은 회차 + 문제번호면 횟수 증가
   const existing = data.find(d => d.round === round && d.qnum === qnum);
   if (existing) {
     existing.count += count;
     existing.note = note || existing.note;
-    existing.subject = subject || existing.subject;
     save();
     toast(`${round} ${qnum}번 — 틀린 횟수 ${existing.count}회로 업데이트`);
   } else {
-    data.push({ id: genId(), round, qnum, subject, count, note, createdAt: Date.now() });
+    data.push({ id: genId(), round, qnum, count, note, createdAt: Date.now() });
     save();
     toast('오답이 추가됐습니다.');
   }
 
-  // 초기화 (회차는 유지)
   document.getElementById('inp-qnum').value = '';
-  document.getElementById('inp-subject').value = '';
   document.getElementById('inp-count').value = '1';
   document.getElementById('inp-note').value = '';
   document.getElementById('inp-qnum').focus();
 }
 
-/* ── 필터 ── */
 function updateRoundFilter() {
   const rounds = [...new Set(data.map(d => d.round))].sort();
   const sel = document.getElementById('filter-round');
@@ -496,7 +426,7 @@ function filteredData() {
     if (countF === '2' && d.count !== 2) return false;
     if (countF === '3' && d.count < 3) return false;
     if (search && !d.qnum.includes(search) && !d.round.toLowerCase().includes(search) &&
-        !d.subject.toLowerCase().includes(search) && !d.note.toLowerCase().includes(search)) return false;
+        !d.note.toLowerCase().includes(search)) return false;
     return true;
   }).sort((a, b) => {
     if (a.round < b.round) return -1;
@@ -505,7 +435,6 @@ function filteredData() {
   });
 }
 
-/* ── 목록 렌더 ── */
 function renderList() {
   const list = filteredData();
   const el = document.getElementById('wrong-list');
@@ -520,8 +449,8 @@ function renderList() {
       <div class="wrong-item-header" onclick="toggleItem('${d.id}')">
         <div class="q-number">${escHtml(d.qnum)}</div>
         <div class="q-info">
-          <div class="q-title">${escHtml(d.round)}${d.subject ? ' · ' + escHtml(d.subject) : ''}</div>
-          <div class="q-meta">${d.qnum}번 문제</div>
+          <div class="q-title">${escHtml(d.round)}</div>
+          <div class="q-meta">${escHtml(d.qnum)}번 문제</div>
         </div>
         <span class="badge ${d.count >= 3 ? 'badge-red' : 'badge-purple'}">✗ ${d.count}회</span>
         <span class="chevron">▼</span>
@@ -544,15 +473,9 @@ function renderList() {
               <input type="number" id="edit-qnum-${d.id}" value="${escAttr(d.qnum)}" min="1" />
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>과목 / 영역</label>
-              <input type="text" id="edit-subject-${d.id}" value="${escAttr(d.subject)}" />
-            </div>
-            <div class="form-group">
-              <label>틀린 횟수</label>
-              <input type="number" id="edit-count-${d.id}" value="${d.count}" min="1" max="99" />
-            </div>
+          <div class="form-group" style="margin-bottom:4px">
+            <label>틀린 횟수</label>
+            <input type="number" id="edit-count-${d.id}" value="${d.count}" min="1" max="99" />
           </div>
           <div class="form-group">
             <label>해설 / 메모</label>
@@ -582,7 +505,6 @@ function escHtml(s = '') {
 
 function escAttr(s = '') { return escHtml(s); }
 
-/* ── 편집 ── */
 function startEdit(id) {
   document.getElementById('note-view-' + id).style.display = 'none';
   document.getElementById('actions-' + id).style.display = 'none';
@@ -600,7 +522,6 @@ function saveEdit(id) {
   if (idx === -1) return;
   data[idx].round = document.getElementById('edit-round-' + id).value.trim();
   data[idx].qnum = document.getElementById('edit-qnum-' + id).value.trim();
-  data[idx].subject = document.getElementById('edit-subject-' + id).value.trim();
   data[idx].count = parseInt(document.getElementById('edit-count-' + id).value) || 1;
   data[idx].note = document.getElementById('edit-note-' + id).value.trim();
   save();
@@ -618,45 +539,10 @@ function deleteEntry(id) {
   toast('삭제됐습니다.');
 }
 
-/* ── 통계 ── */
-function renderStats() {
-  document.getElementById('st-total').textContent = data.length;
-  document.getElementById('st-rounds').textContent = new Set(data.map(d => d.round)).size;
-  document.getElementById('st-multi').textContent = data.filter(d => d.count >= 2).length;
-
-  const byRound = {};
-  data.forEach(d => {
-    if (!byRound[d.round]) byRound[d.round] = [];
-    byRound[d.round].push(d);
-  });
-
-  const rounds = Object.keys(byRound).sort();
-  document.getElementById('round-stats').innerHTML = rounds.map(r => {
-    const items = byRound[r].sort((a, b) => parseInt(a.qnum) - parseInt(b.qnum));
-    return `
-      <div class="card" style="margin-bottom:12px">
-        <h2 style="margin-bottom:12px">📋 ${escHtml(r)}</h2>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${items.map(d => `
-            <span class="badge ${d.count >= 3 ? 'badge-red' : 'badge-purple'}" style="font-size:0.85rem;padding:4px 10px">
-              ${escHtml(d.qnum)}번 <small style="opacity:0.8">(${d.count}회)</small>
-            </span>
-          `).join('')}
-        </div>
-        <div style="margin-top:10px;font-size:0.8rem;color:var(--muted)">
-          총 ${items.length}문제 · 반복오답 ${items.filter(d=>d.count>=2).length}문제
-        </div>
-      </div>
-    `;
-  }).join('') || '<div class="empty"><div class="empty-icon">📊</div><p>데이터가 없습니다.</p></div>';
-}
-
-/* ── 엔터키 지원 ── */
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.id === 'inp-qnum') addEntry();
 });
 
-/* ── 초기화 ── */
 load();
 updateRoundFilter();
 </script>
