@@ -92,7 +92,7 @@
     .quiz-progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
     .quiz-progress-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.3s; }
     .quiz-progress-text { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
-    .quiz-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; }
+    .quiz-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; position: relative; }
     .quiz-left-panel { }
     .quiz-right-panel { }
     body.landscape-mode .quiz-card { display: flex; gap: 0; padding: 0; overflow: hidden; }
@@ -113,6 +113,7 @@
     .quiz-result-box.fail { background: var(--danger-light); color: #991b1b; }
     .quiz-explanation { margin-top: 12px; background: var(--bg); border-radius: 8px; padding: 14px; font-size: 0.88rem; line-height: 1.7; border-left: 3px solid var(--primary); }
     .quiz-nav { display: flex; justify-content: flex-end; margin-top: 16px; }
+    .quiz-top-nav { position: absolute; top: 16px; right: 16px; z-index: 10; }
 
     .quiz-summary { text-align: center; padding: 32px 20px; }
     .quiz-summary-score { font-size: 3rem; font-weight: 700; color: var(--primary); margin: 16px 0 8px; }
@@ -539,16 +540,16 @@ function renderQuizQuestion() {
     </button>` : '').join('');
 
   document.getElementById('quiz-card').innerHTML = `
+    <div class="quiz-top-nav" id="qnav" style="display:none">
+      <button class="btn btn-primary" onclick="nextQuestion()">
+        ${quizIndex+1<total ? '다음 문제 →' : '결과 보기'}
+      </button>
+    </div>
     <div class="quiz-left-panel">
       <div class="quiz-round-badge">${esc(q.round)} · ${esc(q.qnum)}번</div>
       <div class="quiz-question-text">${esc(q.question || q.qnum+'번 문제')}</div>
     </div>
     <div class="quiz-right-panel">
-      <div class="quiz-nav" id="qnav" style="display:none">
-        <button class="btn btn-primary" onclick="nextQuestion()">
-          ${quizIndex+1<total ? '다음 문제 →' : '결과 보기'}
-        </button>
-      </div>
       <div class="quiz-choices" id="qchoices">${choicesHtml}</div>
       <div id="qresult"></div>
     </div>`;
