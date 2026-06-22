@@ -92,6 +92,14 @@
     .quiz-progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
     .quiz-progress-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.3s; }
     .quiz-progress-text { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+    .quiz-list-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.2rem; padding: 4px; }
+    #quiz-list-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 12px; }
+    #quiz-list-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .qlist-btn { width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .qlist-btn.current { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .qlist-btn.answered-ok { border-color: var(--success); background: var(--success-light); color: #065f46; }
+    .qlist-btn.answered-fail { border-color: var(--danger); background: var(--danger-light); color: #991b1b; }
+    .quiz-nav-btns { display: flex; justify-content: space-between; margin-top: 12px; }
     .quiz-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; position: relative; }
     .quiz-left-panel { }
     .quiz-right-panel { }
@@ -258,8 +266,16 @@
             <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-prog-fill"></div></div>
             <span class="quiz-progress-text" id="quiz-prog-text"></span>
           </div>
+          <button class="quiz-list-btn" onclick="toggleQuizList()" title="문제 목록">☰</button>
+        </div>
+        <div id="quiz-list-panel" style="display:none">
+          <div id="quiz-list-grid"></div>
         </div>
         <div class="quiz-card" id="quiz-card"></div>
+        <div class="quiz-nav-btns">
+          <button class="btn btn-ghost btn-sm" id="btn-prev" onclick="prevQuestion()">← 이전</button>
+          <button class="btn btn-ghost btn-sm" id="btn-next-skip" onclick="nextQuestion()">다음 →</button>
+        </div>
       </div>
 
       <div id="quiz-result" style="display:none"></div>
@@ -504,6 +520,7 @@ let quizIndex = 0;
 let quizScore = 0;
 let quizMissed = [];
 let quizAnswered = false;
+let quizResults = []; // null | 'ok' | 'fail' per index
 
 function getQuizList(roundF, scope) {
   return questions
@@ -546,7 +563,7 @@ function startQuiz() {
   else list = list.slice(startIdx);
   if (!list.length) { toast('해당 범위에 문제가 없습니다.'); return; }
   quizQueue = list;
-  quizIndex = 0; quizScore = 0; quizMissed = []; quizAnswered = false;
+  quizIndex = 0; quizScore = 0; quizMissed = []; quizAnswered = false; quizResults = new Array(quizQueue.length).fill(null);
   document.getElementById('quiz-setup').style.display = 'none';
   document.getElementById('quiz-result').style.display = 'none';
   document.getElementById('quiz-area').style.display = landscapeMode ? 'flex' : 'block';
@@ -559,6 +576,8 @@ function renderQuizQuestion() {
   document.getElementById('quiz-prog-fill').style.width = (quizIndex/total*100)+'%';
   document.getElementById('quiz-prog-text').textContent = `${quizIndex+1} / ${total}`;
   quizAnswered = false;
+  document.getElementById('btn-prev').disabled = quizIndex === 0;
+  renderQuizListGrid();
 
   const choicesHtml = q.choices.map((c,i) => c ? `
     <button class="quiz-choice-btn" onclick="submitAnswer(${i+1})" data-num="${i+1}">
@@ -612,6 +631,35 @@ async function submitAnswer(chosen) {
       ${q.explanation ? `<div class="quiz-explanation">${q.explanation}</div>` : ''}`;
   }
   document.getElementById('qnav').style.display = 'flex';
+  quizResults[quizIndex] = isCorrect ? 'ok' : 'fail';
+  renderQuizListGrid();
+}
+
+function toggleQuizList() {
+  const panel = document.getElementById('quiz-list-panel');
+  panel.style.display = panel.style.display === 'none' ? '' : 'none';
+}
+
+function renderQuizListGrid() {
+  const grid = document.getElementById('quiz-list-grid');
+  if (!grid) return;
+  grid.innerHTML = quizQueue.map((q, i) => {
+    let cls = 'qlist-btn';
+    if (i === quizIndex) cls += ' current';
+    else if (quizResults[i] === 'ok') cls += ' answered-ok';
+    else if (quizResults[i] === 'fail') cls += ' answered-fail';
+    return `<button class="${cls}" onclick="jumpToQuestion(${i})">${q.qnum}</button>`;
+  }).join('');
+}
+
+function jumpToQuestion(idx) {
+  quizIndex = idx;
+  document.getElementById('quiz-list-panel').style.display = 'none';
+  renderQuizQuestion();
+}
+
+function prevQuestion() {
+  if (quizIndex > 0) { quizIndex--; renderQuizQuestion(); }
 }
 
 function nextQuestion() {
@@ -649,7 +697,7 @@ function showQuizResult() {
 
 function retryMissed() {
   quizQueue = [...quizMissed];
-  quizIndex = 0; quizScore = 0; quizMissed = []; quizAnswered = false;
+  quizIndex = 0; quizScore = 0; quizMissed = []; quizAnswered = false; quizResults = new Array(quizQueue.length).fill(null);
   document.getElementById('quiz-result').style.display = 'none';
   document.getElementById('quiz-area').style.display = 'block';
   renderQuizQuestion();
