@@ -97,8 +97,11 @@
     .quiz-right-panel { }
     body.landscape-mode .quiz-card { display: flex; gap: 0; padding: 0; overflow: hidden; }
     body.landscape-mode .quiz-left-panel { flex: 1; padding: 24px; border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
-    body.landscape-mode .quiz-right-panel { flex: 1; padding: 24px; overflow-y: auto; }
-    body.landscape-mode .quiz-nav { margin-bottom: 12px; }
+    body.landscape-mode .quiz-right-panel { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; }
+    body.landscape-mode .quiz-top-nav { position: static; justify-content: flex-end; margin-bottom: 12px; order: -1; }
+    body:not(.landscape-mode) .quiz-right-panel { display: none; }
+    #qresult-portrait { }
+    body.landscape-mode #qresult-portrait { display: none; }
     .quiz-round-badge { font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 12px; }
     .quiz-question-text { font-size: 1rem; line-height: 1.7; font-weight: 500; margin-bottom: 20px; white-space: pre-wrap; }
     .quiz-choices { display: flex; flex-direction: column; gap: 10px; }
@@ -319,7 +322,8 @@ function esc(s='') {
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'), 2500);
+  clearTimeout(el._toastTimer);
+  el._toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
 }
 
 /* ── Data load ── */
@@ -548,10 +552,11 @@ function renderQuizQuestion() {
     <div class="quiz-left-panel">
       <div class="quiz-round-badge">${esc(q.round)} · ${esc(q.qnum)}번</div>
       <div class="quiz-question-text">${esc(q.question || q.qnum+'번 문제')}</div>
+      <div class="quiz-choices" id="qchoices">${choicesHtml}</div>
+      <div id="qresult-portrait"></div>
     </div>
     <div class="quiz-right-panel">
-      <div class="quiz-choices" id="qchoices">${choicesHtml}</div>
-      <div id="qresult"></div>
+      <div id="qresult-landscape"></div>
     </div>`;
 }
 
@@ -568,16 +573,19 @@ async function submitAnswer(chosen) {
     else if (num === chosen) btn.classList.add('wrong');
   });
 
+  const isLandscape = document.body.classList.contains('landscape-mode');
+  const resultTarget = isLandscape ? 'qresult-landscape' : 'qresult-portrait';
+
   if (isCorrect) {
     quizScore++;
-    document.getElementById('qresult').innerHTML = `
+    document.getElementById(resultTarget).innerHTML = `
       <div class="quiz-result-box ok">✓ 정답입니다!</div>
       ${q.explanation ? `<div class="quiz-explanation">${q.explanation}</div>` : ''}
       <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addToWrong('${q.id}', this)">+ 오답노트 추가</button>`;
   } else {
     quizMissed.push(q);
     await incrementProgress(q.id);
-    document.getElementById('qresult').innerHTML = `
+    document.getElementById(resultTarget).innerHTML = `
       <div class="quiz-result-box fail">✗ 오답입니다. 정답: ${NUMS[q.answer-1]}</div>
       ${q.explanation ? `<div class="quiz-explanation">${q.explanation}</div>` : ''}`;
   }
