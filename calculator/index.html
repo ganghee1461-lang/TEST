@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>공학용 계산기</title>
+<meta name="theme-color" content="#15171b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="공학계산기">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#15171b;--edge:#121317;--shift:#f2b630;--alpha:#ff6f61;--lcdText:#1b2114}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{display:flex;justify-content:center;align-items:center;
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.calc{width:min(100vw,430px);height:min(100dvh,920px);
+  background:linear-gradient(170deg,#3a3d45 0%,#2a2d33 45%,#212328 100%);
+  border-radius:30px;padding:12px 12px 14px;display:flex;flex-direction:column;gap:8px;
+  box-shadow:0 20px 50px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.08)}
+@media (max-width:480px){.calc{width:100vw;height:100dvh;border-radius:0;padding:8px 8px 10px}}
+.top{display:flex;justify-content:space-between;align-items:center;padding:0 6px;color:#c9ccd3}
+.brand{font-size:11px;letter-spacing:.18em;font-weight:700}
+.brand small{display:block;font-size:9px;letter-spacing:.1em;font-weight:500;color:#8b909b;margin-top:1px}
+.solar{width:96px;height:20px;border-radius:4px;background:repeating-linear-gradient(90deg,#3b2a24 0 23px,#2a1d19 23px 24px);box-shadow:inset 0 1px 3px rgba(0,0,0,.6)}
+.lcdwrap{background:#1a1c20;border-radius:12px;padding:7px;box-shadow:inset 0 2px 4px rgba(0,0,0,.6)}
+.lcd{background:linear-gradient(180deg,#cfd8bb,#bfc9a8);border-radius:5px;height:150px;padding:2px 9px 5px;
+  display:flex;flex-direction:column;color:var(--lcdText);
+  font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;box-shadow:inset 0 2px 5px rgba(0,0,0,.25);overflow:hidden}
+.lcd.off>*{visibility:hidden}
+.status{display:flex;gap:6px;font:800 9.5px/14px -apple-system,"Segoe UI",sans-serif;height:14px}
+.status span{opacity:.1}.status span.on{opacity:1}.status .grow{flex:1}
+.input{flex:1;min-height:0;font-size:21px;white-space:nowrap;overflow:hidden;display:flex;align-items:center}
+.inner{display:inline-block;white-space:nowrap;padding-right:8px}
+.cur{display:inline-block;width:2px;height:1.05em;background:var(--lcdText);vertical-align:-.15em;margin:0 -1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.ph{display:inline-block;width:.55em;height:.75em;border:1px dashed var(--lcdText);vertical-align:-.05em;margin:0 1px;opacity:.7}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.82em;margin:0 2px;line-height:1.1}
+.fr>span{padding:0 2px}.fr>span:first-child{border-bottom:1.5px solid var(--lcdText)}
+.sp{font-size:.62em;vertical-align:.75em;line-height:0}
+.rt{white-space:nowrap}.rtin{border-top:1.5px solid var(--lcdText);padding:0 2px 0 1px;display:inline-block;line-height:1.15}
+.ri{font-size:.55em;vertical-align:.9em;margin-right:-.25em;line-height:0}
+.sb{font-size:.62em;vertical-align:-.35em}
+.lim{display:inline-flex;flex-direction:column;vertical-align:middle;font-size:.55em;line-height:1.05;margin-right:2px}
+.lim.c{align-items:center}
+.lim .big{font-size:1.9em;line-height:1}
+.bigi{font-size:1.25em;vertical-align:-.12em}
+.small{font-size:.8em}
+.result{text-align:right;white-space:nowrap;overflow:hidden;font-size:30px;line-height:1.15;min-height:38px;display:flex;justify-content:flex-end;align-items:flex-end;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.result .lbl{margin-right:auto;font-size:.7em}
+.result sup{font-size:.5em;vertical-align:super;margin-left:1px}
+.result .tim{font-size:.75em;margin:0 1px}
+.result .fr{font-size:.7em}
+.two{display:flex;flex-direction:column;align-items:stretch;width:100%;font-size:20px;line-height:1.25}
+.two div{display:flex;justify-content:space-between}
+.err{font:700 20px -apple-system,"Segoe UI",sans-serif;margin-top:6px}
+.errhint{font:12px -apple-system,"Segoe UI",sans-serif;margin-top:4px}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:1px 10px;font:600 13px/1.3 -apple-system,"Segoe UI",sans-serif;padding-top:2px;width:100%}
+.menu.one{grid-template-columns:1fr}
+.prompt{font:600 15px -apple-system,"Segoe UI",sans-serif}
+.pad{flex:1;display:flex;flex-direction:column;gap:9px;min-height:0}
+.fnk{flex:5;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(5,1fr);gap:1px 5px;min-height:0}
+.numk{flex:4.4;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(4,1fr);gap:4px 7px;min-height:0}
+.k{background:none;border:0;padding:0;margin:0;display:flex;flex-direction:column;align-items:stretch;min-height:0;min-width:0;font:inherit;cursor:pointer;outline:none}
+.lab{display:flex;justify-content:space-between;font-size:9px;line-height:12px;height:12px;font-weight:700;white-space:nowrap;padding:0 1px;gap:2px;overflow:visible}
+.lab .ls{color:var(--shift)}.lab .la{color:var(--alpha);margin-left:auto}
+.lab.ctr{justify-content:center}
+.cap{flex:1;min-height:0;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#484c56,#363941);color:#f2f3f5;font-size:13.5px;font-weight:600;white-space:nowrap;
+  box-shadow:0 3px 0 var(--edge),inset 0 1px 0 rgba(255,255,255,.12);transition:transform .05s}
+.cap sup{font-size:.7em;vertical-align:.5em;line-height:0}.cap sub{font-size:.7em;vertical-align:-.25em;line-height:0}
+.k.pressed .cap{transform:translateY(2px);box-shadow:0 1px 0 var(--edge);filter:brightness(1.18)}
+.k.round .cap{border-radius:999px;font-size:11px}
+.cap.kshift{color:var(--shift)}.cap.kalpha{color:var(--alpha)}
+.calc.shifted .cap.kshift{background:var(--shift);color:#222}
+.calc.alphaed .cap.kalpha{background:var(--alpha);color:#fff}
+.kfr{display:inline-flex;flex-direction:column;align-items:center;gap:1px}
+.kfr i{display:block;width:8px;height:7px;border:1.3px solid currentColor;border-radius:1px}
+.kfr u{display:block;width:12px;height:1.5px;background:currentColor}
+.numk .cap{background:linear-gradient(180deg,#eceef2,#cfd2d8);color:#1b1d22;font-size:22px;border-radius:9px}
+.numk .cap.op{font-size:24px}.numk .cap.word{font-size:15px}
+.numk .cap.orange{background:linear-gradient(180deg,#f0844a,#d8601f);color:#fff;font-size:16px}
+.numk .cap.eq{background:linear-gradient(180deg,#5c6270,#454a55);color:#fff}
+.dpad{grid-column:3/5;grid-row:1/3;position:relative;align-self:center;justify-self:center;width:min(100%,118px);aspect-ratio:1/0.8;
+  border-radius:50%;background:radial-gradient(circle at 50% 40%,#5a5f6b,#3a3e47);box-shadow:0 3px 0 var(--edge),inset 0 1px 0 rgba(255,255,255,.15)}
+.dpad button{position:absolute;background:none;border:0;color:#e8eaee;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:40%}
+.dpad button.pressed{background:rgba(255,255,255,.15)}
+.dpad .u{left:30%;right:30%;top:0;height:36%}.dpad .d{left:30%;right:30%;bottom:0;height:36%}
+.dpad .l{left:0;top:25%;bottom:25%;width:34%}.dpad .r{right:0;top:25%;bottom:25%;width:34%}
+.dpad::after{content:"";position:absolute;left:39%;top:36%;width:22%;height:28%;border-radius:50%;background:#2c2f36}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="calc" id="calc">
+  <div class="top">
+    <div class="brand">SCIENTIFIC<small>공학용 계산기 · 자연 표시</small></div>
+    <div class="solar"></div>
+  </div>
+  <div class="lcdwrap">
+    <div class="lcd" id="lcd">
+      <div class="status">
+        <span id="iS">S</span><span id="iA">A</span><span id="iM">M</span><span id="iSTO">STO</span><span id="iRCL">RCL</span>
+        <span id="iFIX">FIX</span><span id="iSCI">SCI</span><span id="iMath" class="on">Math</span>
+        <span class="on" id="iAng">D</span><span class="grow"></span><span id="iUp">▲</span><span id="iDn">▼</span>
+      </div>
+      <div class="input" id="input"></div>
+      <div class="result" id="result"></div>
+    </div>
+  </div>
+  <div class="pad">
+    <div class="fnk" id="fnk"></div>
+    <div class="numk" id="numk"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+/* =========================================================
+   상태
+   ========================================================= */
+const VARS=['A','B','C','D','E','F','X','Y','M'];
+const st={
+  ed:null, mainEd:null,            // 편집 중인 식 {root, cur:{list,idx}}
+  showing:false,result:0,ans:0,err:null,
+  shift:false,alpha:false,pend:null,  // pend: 'sto' | 'rcl'
+  menu:null,prompt:null,off:false,
+  vars:{A:0,B:0,C:0,D:0,E:0,F:0,X:0,Y:0,M:0},
+  angle:'DEG',io:'Math',disp:{t:'Norm',n:1},
+  dec:false,mixed:false,eng:null,dmsOut:false,pair:null,solve:null,note:'',
+  hist:[],hi:null
+};
+function newEd(){const r=[];return{root:r,cur:{list:r,idx:0}};}
+st.ed=newEd();
+try{const s=JSON.parse(localStorage.getItem('sciCalc2')||'{}');
+  if(s.vars)VARS.forEach(v=>{if(typeof s.vars[v]==='number')st.vars[v]=s.vars[v];});
+  if(typeof s.ans==='number')st.ans=s.ans;
+  if(['DEG','RAD','GRA'].includes(s.angle))st.angle=s.angle;
+  if(s.io==='Line'||s.io==='Math')st.io=s.io;
+  if(s.disp&&['Norm','Fix','Sci'].includes(s.disp.t))st.disp=s.disp;
+}catch(e){}
+function save(){try{localStorage.setItem('sciCalc2',JSON.stringify({vars:st.vars,ans:st.ans,angle:st.angle,io:st.io,disp:st.disp}))}catch(e){}}
+
+/* =========================================================
+   키 배치 (m 키글자, s SHIFT, al ALPHA, a/sa/aa 동작, v 변수)
+   ========================================================= */
+const FRAC_ICON='<span class="kfr"><i></i><u></u><i></i></span>';
+const BX='▫';
+const FN_TOP=[
+ {k:{m:'SHIFT',a:'shift',c:'kshift',round:1},area:'1/1'},
+ {k:{m:'ALPHA',a:'alpha',c:'kalpha',round:1},area:'1/2'},
+ {k:{m:'MODE',s:'SETUP',a:'mode',sa:'setup',round:1},area:'1/5'},
+ {k:{m:'ON',a:'on',round:1},area:'1/6'},
+ {k:{m:'CALC',s:'SOLVE',al:'=',a:'calc',sa:'solve',aa:['=']},area:'2/1'},
+ {k:{m:'∫'+BX,s:'d/dx',al:':',a:['#integ'],sa:['#deriv'],aa:'colon'},area:'2/2'},
+ {k:{m:'x<sup>−1</sup>',s:'x!',a:['⁻¹'],sa:['!']},area:'2/5'},
+ {k:{m:'log<sub>'+BX+'</sub>'+BX,s:'Σ',a:['#logab'],sa:['#sum']},area:'2/6'}
+];
+const FN_REST=[
+ {m:FRAC_ICON,s:BX+'<span style="font-size:.85em">'+BX+'/'+BX+'</span>',a:['#frac'],sa:['#mixed']},
+ {m:'√'+BX,s:'∛',a:['#sqrt'],sa:['#cbrt']},
+ {m:'x²',s:'x³',a:['²'],sa:['³']},
+ {m:'x<sup>'+BX+'</sup>',s:'<sup>'+BX+'</sup>√'+BX,a:['#pow'],sa:['#xroot']},
+ {m:'log',s:'10<sup>'+BX+'</sup>',a:['log('],sa:['1','0','#pow']},
+ {m:'ln',s:'e<sup>'+BX+'</sup>',a:['ln('],sa:['e','#pow']},
+ {m:'(−)',s:'∠',al:'A',a:['(-)'],sa:'na',aa:['A'],v:'A'},
+ {m:"°'″",s:'←',al:'B',a:'dms',sa:'dmsoff',aa:['B'],v:'B'},
+ {m:'hyp',s:'Abs',al:'C',a:'hyp',sa:['#abs'],aa:['C'],v:'C'},
+ {m:'sin',s:'sin⁻¹',al:'D',a:['sin('],sa:['sin⁻¹('],aa:['D'],v:'D'},
+ {m:'cos',s:'cos⁻¹',al:'E',a:['cos('],sa:['cos⁻¹('],aa:['E'],v:'E'},
+ {m:'tan',s:'tan⁻¹',al:'F',a:['tan('],sa:['tan⁻¹('],aa:['F'],v:'F'},
+ {m:'RCL',s:'STO',a:'rcl',sa:'sto'},
+ {m:'ENG',s:'←',a:'eng',sa:'engl'},
+ {m:'(',s:'%',a:['('],sa:['%']},
+ {m:')',s:',',al:'X',a:[')'],sa:[','],aa:['X'],v:'X'},
+ {m:'S⇔D',s:'a<sup>b</sup>/<sub>c</sub>⇔<sup>d</sup>/<sub>c</sub>',al:'Y',a:'sd',sa:'mixtoggle',aa:['Y'],v:'Y'},
+ {m:'M+',s:'M−',al:'M',a:'mplus',sa:'mminus',aa:['M'],v:'M'}
+];
+const NUM=[
+ {m:'7',s:'CONST',a:['7'],sa:'const'},{m:'8',s:'CONV',a:['8'],sa:'conv'},{m:'9',s:'CLR',a:['9'],sa:'clr'},
+ {m:'DEL',s:'INS',a:'del',sa:'ins',c:'orange'},{m:'AC',s:'OFF',a:'ac',sa:'off',c:'orange'},
+ {m:'4',s:'MATRIX',a:['4'],sa:'na'},{m:'5',s:'VECTOR',a:['5'],sa:'na'},{m:'6',a:['6']},
+ {m:'×',s:'nPr',a:['×'],sa:['nPr'],c:'op'},{m:'÷',s:'nCr',a:['÷'],sa:['nCr'],c:'op'},
+ {m:'1',s:'STAT',a:['1'],sa:'na'},{m:'2',s:'CMPLX',a:['2'],sa:'na'},{m:'3',s:'BASE',a:['3'],sa:'na'},
+ {m:'+',s:'Pol',a:['+'],sa:['Pol('],c:'op'},{m:'−',s:'Rec',a:['−'],sa:['Rec('],c:'op'},
+ {m:'0',s:'Rnd',a:['0'],sa:['Rnd(']},{m:'.',s:'Ran#',al:'RanInt',a:['.'],sa:['Ran#'],aa:['RanInt#(']},
+ {m:'×10<sup>x</sup>',s:'π',al:'e',a:['E'],sa:['π'],aa:['e'],c:'word'},
+ {m:'Ans',s:'DRG▶',a:['Ans'],sa:'drg',c:'word'},{m:'=',a:'eq',sa:'approx',c:'op eq'}
+];
+function mkKey(k){
+  const b=document.createElement('button');b.className='k'+(k.round?' round':'');b.type='button';
+  const lab=(k.s||k.al)?'<span class="lab"><b class="ls">'+(k.s||'')+'</b><b class="la">'+(k.al||'')+'</b></span>':'<span class="lab"></span>';
+  b.innerHTML=lab+'<span class="cap '+(k.c||'')+'">'+k.m+'</span>';
+  bindPress(b,()=>press(k));return b;
+}
+function bindPress(b,fn){
+  const up=()=>b.classList.remove('pressed');
+  b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('pressed');fn();});
+  b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up);
+}
+const fnk=document.getElementById('fnk');
+FN_TOP.forEach(o=>{const b=mkKey(o.k);const[r,c]=o.area.split('/');b.style.gridRow=r;b.style.gridColumn=c;fnk.appendChild(b);});
+const dp=document.createElement('div');dp.className='dpad';
+[['u','▲','up'],['d','▼','down'],['l','◀','left'],['r','▶','right']].forEach(([c,t,a])=>{
+  const b=document.createElement('button');b.className=c;b.type='button';b.textContent=t;bindPress(b,()=>press({a}));dp.appendChild(b);});
+fnk.appendChild(dp);
+FN_REST.forEach(k=>fnk.appendChild(mkKey(k)));
+NUM.forEach(k=>document.getElementById('numk').appendChild(mkKey(k)));
+
+/* =========================================================
+   식 트리 편집 (분수·루트 등 틀 구조)
+   ========================================================= */
+const TPL={frac:2,mixed:3,sqrt:1,cbrt:1,xroot:2,pow:1,logab:2,abs:1,integ:3,deriv:2,sum:3};
+const VERT={frac:{0:1,1:0},mixed:{1:2,2:1},integ:{1:2,2:1},sum:{1:2,2:1}};
+function mkTpl(t){const s=[];for(let i=0;i<TPL[t];i++)s.push([]);return{t,s};}
+function parents(){const m=new Map();(function w(L){L.forEach((it,j)=>{if(typeof it==='object')it.s.forEach((sl,k)=>{m.set(sl,{tpl:it,k,list:L,idx:j});w(sl);});});})(st.ed.root);return m;}
+function positions(){const p=[];(function w(L){for(let j=0;j<=L.length;j++){p.push([L,j]);if(j<L.length&&typeof L[j]==='object')L[j].s.forEach(w);}})(st.ed.root);return p;}
+const OPSTART=new Set(['+','−','×','÷','#pow','²','³','⁻¹','!','%','nCr','nPr','ᴰ','ʳ','ᵍ','°']);
+function insert(items){
+  st.hi=null;st.err=null;
+  if(st.showing){
+    st.showing=false;clearOut();
+    const op=OPSTART.has(items[0])||String(items[0]).startsWith('cv:');
+    st.ed=newEd();if(op){st.ed.root.push('Ans');st.ed.cur.idx=1;}
+  }
+  const c=st.ed.cur;let pos=c.idx,enter=null;
+  for(const it of items){
+    if(it.length>1&&it[0]==='#'){const t=mkTpl(it.slice(1));c.list.splice(pos++,0,t);enter=t;}
+    else c.list.splice(pos++,0,it);
+  }
+  st.ed.cur=enter?{list:enter.s[0],idx:0}:{list:c.list,idx:pos};
+}
+function moveLR(dir){
+  const p=positions();const c=st.ed.cur;
+  let i=p.findIndex(([L,j])=>L===c.list&&j===c.idx);if(i<0)i=p.length-1;
+  i=(i+dir+p.length)%p.length;st.ed.cur={list:p[i][0],idx:p[i][1]};
+}
+function moveUD(dir){
+  const par=parents().get(st.ed.cur.list);
+  if(par&&VERT[par.tpl.t]&&VERT[par.tpl.t][par.k]!==undefined){
+    const to=VERT[par.tpl.t][par.k];
+    if((dir<0&&to<par.k)||(dir>0&&to>par.k)){const L=par.tpl.s[to];st.ed.cur={list:L,idx:Math.min(st.ed.cur.idx,L.length)};return true;}
+  }
+  return false;
+}
+function del(){
+  const c=st.ed.cur;
+  if(c.idx>0){
+    const p=c.list[c.idx-1];
+    if(typeof p==='object'&&p.s.some(s=>s.length)){const L=p.s[p.s.length-1];st.ed.cur={list:L,idx:L.length};}
+    else{c.list.splice(c.idx-1,1);c.idx--;}
+  }else{
+    const par=parents().get(c.list);
+    if(par){
+      if(par.tpl.s.every(s=>!s.length)){par.list.splice(par.idx,1);st.ed.cur={list:par.list,idx:par.idx};}
+      else moveLR(-1);
+    }
+  }
+}
+function clone(L){return JSON.parse(JSON.stringify(L));}
+
+/* 트리 → 계산용 토큰 */
+function ser(L,o=[]){for(const it of L){if(typeof it==='string')o.push(it);else SER[it.t](it.s,o);}return o;}
+function slot(L,o){const t=ser(L,[]);let d=0;for(const x of t){if(x.endsWith('('))d++;else if(x===')')d=Math.max(0,d-1);}o.push(...t);while(d--)o.push(')');}
+const SER={
+  frac:(s,o)=>{o.push('(','(');slot(s[0],o);o.push(')','÷','(');slot(s[1],o);o.push(')',')');},
+  mixed:(s,o)=>{o.push('(','(');slot(s[0],o);o.push(')','+','(');slot(s[1],o);o.push(')','÷','(');slot(s[2],o);o.push(')',')');},
+  sqrt:(s,o)=>{o.push('√(');slot(s[0],o);o.push(')');},
+  cbrt:(s,o)=>{o.push('∛(');slot(s[0],o);o.push(')');},
+  xroot:(s,o)=>{o.push('ˣ√(');slot(s[0],o);o.push(',');slot(s[1],o);o.push(')');},
+  pow:(s,o)=>{o.push('^(');slot(s[0],o);o.push(')');},
+  logab:(s,o)=>{o.push('logab(');slot(s[0],o);o.push(',');slot(s[1],o);o.push(')');},
+  abs:(s,o)=>{o.push('Abs(');slot(s[0],o);o.push(')');},
+  integ:(s,o)=>{o.push('∫(');slot(s[0],o);o.push(',');slot(s[1],o);o.push(',');slot(s[2],o);o.push(')');},
+  deriv:(s,o)=>{o.push('d/dx(');slot(s[0],o);o.push(',');slot(s[1],o);o.push(')');},
+  sum:(s,o)=>{o.push('Σ(');slot(s[0],o);o.push(',');slot(s[1],o);o.push(',');slot(s[2],o);o.push(')');}
+};
+
+/* =========================================================
+   계산 엔진 (토큰 → 계산 함수)
+   ========================================================= */
+const SYN=()=>{throw{kind:'Syntax'}};const MATH=()=>{throw{kind:'Math'}};
+const isNum=t=>t!==undefined&&(/^[0-9]$/.test(t)||t==='.');
+const isInt=n=>Math.abs(n-Math.round(n))<1e-9;
+const toRad=a=>st.angle==='DEG'?a*Math.PI/180:st.angle==='GRA'?a*Math.PI/200:a;
+const fromRad=a=>st.angle==='DEG'?a*180/Math.PI:st.angle==='GRA'?a*200/Math.PI:a;
+const clean=r=>Math.abs(r)<1e-15?0:r;
+function trig(n,a){
+  const full=st.angle==='DEG'?360:st.angle==='GRA'?400:null;
+  if(n==='sin'){if(full&&isInt(a/(full/2)))return 0;return clean(Math.sin(toRad(a)));}
+  if(n==='cos'){if(full&&isInt((a-full/4)/(full/2)))return 0;return clean(Math.cos(toRad(a)));}
+  if(full&&isInt(a/(full/2)))return 0;if(full&&isInt((a-full/4)/(full/2)))MATH();return clean(Math.tan(toRad(a)));
+}
+function fact(n){if(n<0||!isInt(n)||n>69)MATH();n=Math.round(n);let r=1;for(let k=2;k<=n;k++)r*=k;return r;}
+function nCr(n,r){if(!isInt(n)||!isInt(r))MATH();n=Math.round(n);r=Math.round(r);if(n<0||r<0||r>n)MATH();r=Math.min(r,n-r);let v=1;for(let k=1;k<=r;k++)v=v*(n-r+k)/k;return Math.round(v);}
+function nPr(n,r){if(!isInt(n)||!isInt(r))MATH();n=Math.round(n);r=Math.round(r);if(n<0||r<0||r>n)MATH();let v=1;for(let k=n-r+1;k<=n;k++)v*=k;return v;}
+function pw(b,e){let r;
+  if(b<0&&!isInt(e)){const q=toFrac(e);if(q&&q.d%2===1){r=Math.pow(-b,e);if(Math.abs(q.n)%2===1)r=-r;}else MATH();}
+  else r=Math.pow(b,isInt(e)?Math.round(e):e);
+  if(!isFinite(r))MATH();return r;}
+function root(x,y){if(x===0)MATH();if(y<0){if(isInt(x)&&Math.abs(Math.round(x))%2===1)return -Math.pow(-y,1/x);MATH();}return Math.pow(y,1/x);}
+function rnd(v){const d=st.disp;if(d.t==='Fix')return parseFloat(v.toFixed(d.n));if(d.t==='Sci')return parseFloat(v.toExponential((d.n||10)-1));return parseFloat(v.toPrecision(10));}
+let lastPair=null;
+const FN={
+ 'sin(':[1,a=>trig('sin',a)],'cos(':[1,a=>trig('cos',a)],'tan(':[1,a=>trig('tan',a)],
+ 'sin⁻¹(':[1,a=>{if(Math.abs(a)>1)MATH();return fromRad(Math.asin(a));}],
+ 'cos⁻¹(':[1,a=>{if(Math.abs(a)>1)MATH();return fromRad(Math.acos(a));}],
+ 'tan⁻¹(':[1,a=>fromRad(Math.atan(a))],
+ 'sinh(':[1,Math.sinh],'cosh(':[1,Math.cosh],'tanh(':[1,Math.tanh],
+ 'sinh⁻¹(':[1,Math.asinh],'cosh⁻¹(':[1,a=>{if(a<1)MATH();return Math.acosh(a);}],'tanh⁻¹(':[1,a=>{if(Math.abs(a)>=1)MATH();return Math.atanh(a);}],
+ 'log(':[[1,2],(a,b)=>{if(b===undefined){if(a<=0)MATH();return Math.log10(a);}return logab(a,b);}],
+ 'ln(':[1,a=>{if(a<=0)MATH();return Math.log(a);}],
+ '√(':[1,a=>{if(a<0)MATH();return Math.sqrt(a);}],'∛(':[1,Math.cbrt],'Abs(':[1,Math.abs],
+ 'ˣ√(':[2,root],'logab(':[2,(b,a)=>logab(b,a)],
+ 'Rnd(':[1,rnd],
+ 'RanInt#(':[2,(a,b)=>{if(!isInt(a)||!isInt(b)||a>b)MATH();a=Math.round(a);b=Math.round(b);return a+Math.floor(Math.random()*(b-a+1));}],
+ 'Pol(':[2,(x,y)=>{const r=Math.hypot(x,y);if(r===0&&x===0)MATH();const t=fromRad(Math.atan2(y,x));lastPair={a:'r',va:r,b:'θ',vb:t};return r;}],
+ 'Rec(':[2,(r,t)=>{const x=clean(r*Math.cos(toRad(t))),y=clean(r*Math.sin(toRad(t)));lastPair={a:'X',va:x,b:'Y',vb:y};return x;}]
+};
+function logab(b,a){if(b<=0||b===1||a<=0)MATH();return Math.log(a)/Math.log(b);}
+const SPECIAL={'∫(':3,'d/dx(':2,'Σ(':3};
+const CONST=[
+ ['mp','양성자 질량',1.67262192369e-27],['mn','중성자 질량',1.67492749804e-27],['me','전자 질량',9.1093837015e-31],['mμ','뮤온 질량',1.883531627e-28],
+ ['a0','보어 반지름',5.29177210903e-11],['h','플랑크 상수',6.62607015e-34],['μN','핵자 자기량',5.0507837461e-27],['μB','보어 자기량',9.2740100783e-24],
+ ['ħ','디랙 상수',1.054571817e-34],['α','미세구조 상수',7.2973525693e-3],['re','고전 전자 반지름',2.8179403262e-15],['λc','콤프턴 파장',2.42631023867e-12],
+ ['γp','양성자 자기회전비',2.6752218744e8],['λcp','양성자 콤프턴 파장',1.32140985539e-15],['λcn','중성자 콤프턴 파장',1.31959090581e-15],['R∞','뤼드베리 상수',10973731.56816],
+ ['u','원자 질량 단위',1.6605390666e-27],['μp','양성자 자기 모멘트',1.41060679736e-26],['μe','전자 자기 모멘트',-9.2847647043e-24],['μn','중성자 자기 모멘트',-9.6623651e-27],
+ ['μμ','뮤온 자기 모멘트',-4.4904483e-26],['F','패러데이 상수',96485.33212],['e','기본 전하',1.602176634e-19],['NA','아보가드로 수',6.02214076e23],
+ ['k','볼츠만 상수',1.380649e-23],['Vm','이상기체 몰부피',22.41396954e-3],['R','기체 상수',8.314462618],['C0','진공 중 빛의 속도',299792458],
+ ['C1','제1 복사 상수',3.741771852e-16],['C2','제2 복사 상수',1.438776877e-2],['σ','슈테판-볼츠만 상수',5.670374419e-8],['ε0','진공 유전율',8.8541878128e-12],
+ ['μ0','진공 투자율',1.25663706212e-6],['Φ0','자속 양자',2.067833848e-15],['g','표준 중력 가속도',9.80665],['G0','컨덕턴스 양자',7.748091729e-5],
+ ['Z0','진공 임피던스',376.730313668],['t','섭씨 온도',273.15],['G','만유인력 상수',6.6743e-11],['atm','표준 대기압',101325]
+];
+const CONV=[
+ ['in▶cm',x=>x*2.54],['cm▶in',x=>x/2.54],['ft▶m',x=>x*0.3048],['m▶ft',x=>x/0.3048],['yd▶m',x=>x*0.9144],['m▶yd',x=>x/0.9144],
+ ['mile▶km',x=>x*1.609344],['km▶mile',x=>x/1.609344],['n mile▶m',x=>x*1852],['m▶n mile',x=>x/1852],
+ ['acre▶m²',x=>x*4046.8564224],['m²▶acre',x=>x/4046.8564224],['gal(US)▶ℓ',x=>x*3.785411784],['ℓ▶gal(US)',x=>x/3.785411784],
+ ['gal(UK)▶ℓ',x=>x*4.54609],['ℓ▶gal(UK)',x=>x/4.54609],['pc▶km',x=>x*3.0856775814913673e13],['km▶pc',x=>x/3.0856775814913673e13],
+ ['km/h▶m/s',x=>x/3.6],['m/s▶km/h',x=>x*3.6],['oz▶g',x=>x*28.349523125],['g▶oz',x=>x/28.349523125],
+ ['lb▶kg',x=>x*0.45359237],['kg▶lb',x=>x/0.45359237],['atm▶Pa',x=>x*101325],['Pa▶atm',x=>x/101325],
+ ['mmHg▶Pa',x=>x*133.322387415],['Pa▶mmHg',x=>x/133.322387415],['hp▶kW',x=>x*0.745699872],['kW▶hp',x=>x/0.745699872],
+ ['kgf/cm²▶Pa',x=>x*98066.5],['Pa▶kgf/cm²',x=>x/98066.5],['kgf·m▶J',x=>x*9.80665],['J▶kgf·m',x=>x/9.80665],
+ ['lbf/in²▶kPa',x=>x*6.894757293168],['kPa▶lbf/in²',x=>x/6.894757293168],['°F▶°C',x=>(x-32)/1.8],['°C▶°F',x=>x*1.8+32],
+ ['J▶cal',x=>x/4.184],['cal▶J',x=>x*4.184]
+];
+function compile(toks){
+  let i=0,dms=false;const peek=()=>toks[i];
+  const isFn=t=>t!==undefined&&(FN[t]||SPECIAL[t]);
+  const starts=t=>t!==undefined&&(isNum(t)||t==='E'||VARS.includes(t)||['π','e','Ans','Ran#','(','(-)'].includes(t)||isFn(t)||t.startsWith('cst:'));
+  function expr(){let a=term();while(peek()==='+'||peek()==='−'){const op=toks[i++],x=a,b=term();a=op==='+'?(e=>x(e)+b(e)):(e=>x(e)-b(e));}return a;}
+  function term(){let a=combo();for(;;){const t=peek();
+    if(t==='×'||t==='÷'){i++;const x=a,b=combo();a=t==='×'?(e=>x(e)*b(e)):(e=>{const d=b(e);if(d===0)MATH();return x(e)/d;});}
+    else if(starts(t)){const x=a,b=combo();a=e=>x(e)*b(e);}else break;}return a;}
+  function combo(){let a=unary();while(peek()==='nCr'||peek()==='nPr'){const op=toks[i++],x=a,b=unary();a=op==='nCr'?(e=>nCr(x(e),b(e))):(e=>nPr(x(e),b(e)));}return a;}
+  function unary(){const t=peek();if(t==='−'||t==='(-)'){i++;const x=unary();return e=>-x(e);}if(t==='+'){i++;return unary();}return post(primary());}
+  function post(a){for(;;){const t=peek();const x=a;
+    if(t==='²'){i++;a=e=>{const v=x(e);return v*v;};}
+    else if(t==='³'){i++;a=e=>{const v=x(e);return v*v*v;};}
+    else if(t==='⁻¹'){i++;a=e=>{const v=x(e);if(v===0)MATH();return 1/v;};}
+    else if(t==='!'){i++;a=e=>fact(x(e));}
+    else if(t==='%'){i++;a=e=>x(e)/100;}
+    else if(t==='^('){i++;const ex=args(1)[0];a=e=>pw(x(e),ex(e));}
+    else if(t==='ᴰ'||t==='ʳ'||t==='ᵍ'){i++;a=e=>{const v=x(e);const r=t==='ᴰ'?v*Math.PI/180:t==='ᵍ'?v*Math.PI/200:v;return fromRad(r);};}
+    else if(t&&t.startsWith('cv:')){i++;const f=CONV[+t.slice(3)-1][1];a=e=>f(x(e));}
+    else if(t==='°'){i++;dms=true;const parts=[];
+      for(let k=0;k<2;k++){let j=i,s='';while(isNum(toks[j]))s+=toks[j++];if(s&&toks[j]==='°'){const n=parseFloat(s);if(isNaN(n))SYN();parts.push(n);i=j+1;}else break;}
+      const m=parts[0]||0,sc=parts[1]||0;a=e=>{const d=x(e);const sg=d<0?-1:1;return d+sg*(m/60+sc/3600);};}
+    else break;}return a;}
+  function args(n){const as=[expr()];while(peek()===','){i++;as.push(expr());}
+    if(peek()===')')i++;else if(i<toks.length&&peek()!=='=')SYN();
+    const ok=Array.isArray(n)?n.includes(as.length):as.length===n;if(!ok)SYN();return as;}
+  function primary(){const t=peek();if(t===undefined)SYN();
+    if(isNum(t)||t==='E')return number();
+    if(t==='π'){i++;return()=>Math.PI;}if(t==='e'){i++;return()=>Math.E;}
+    if(t==='Ans'){i++;return()=>st.ans;}
+    if(t==='Ran#'){i++;return()=>Math.floor(Math.random()*1000)/1000;}
+    if(VARS.includes(t)){i++;return e=>(e&&e[t]!==undefined)?e[t]:st.vars[t];}
+    if(t.startsWith('cst:')){i++;const v=CONST[+t.slice(4)-1][2];return()=>v;}
+    if(t==='('){i++;return args(1)[0];}
+    if(FN[t]){i++;const[n,f]=FN[t];const as=args(n);return e=>f(...as.map(g=>g(e)));}
+    if(SPECIAL[t]){i++;const as=args(SPECIAL[t]);
+      if(t==='∫(')return e=>integrate(x=>as[0](Object.assign({},e,{X:x})),as[1](e),as[2](e));
+      if(t==='d/dx(')return e=>deriv(x=>as[0](Object.assign({},e,{X:x})),as[1](e));
+      return e=>sigma(x=>as[0](Object.assign({},e,{X:x})),as[1](e),as[2](e));}
+    SYN();}
+  function number(){let s='';while(isNum(peek()))s+=toks[i++];
+    if((s.match(/\./g)||[]).length>1||s==='.')SYN();if(s==='')s='1';
+    if(peek()==='E'){i++;let sg='';if(peek()==='−'||peek()==='(-)'){sg='-';i++;}else if(peek()==='+')i++;
+      let es='';while(peek()!==undefined&&/^[0-9]$/.test(peek()))es+=toks[i++];if(!es)SYN();s+='e'+sg+es;}
+    const v=parseFloat(s);return()=>v;}
+  const l=expr();let res={f:l,eq:null,dms:false};
+  if(peek()==='='){const lt=toks.slice(0,i);i++;const r=expr();res.eq={l,r,leftVar:(lt.length===1&&VARS.includes(lt[0]))?lt[0]:null};}
+  if(i<toks.length)SYN();res.dms=dms;return res;
+}
+function chk(v){if(typeof v!=='number'||!isFinite(v))MATH();return v;}
+function integrate(f,a,b){
+  if(!isFinite(a)||!isFinite(b))MATH();if(a===b)return 0;let cnt=0;
+  const g=x=>{if(++cnt>300000)MATH();const y=f(x);if(!isFinite(y))MATH();return y;};
+  function asr(a,b,fa,fm,fb,whole,eps,lv){const m=(a+b)/2,lm=(a+m)/2,rm=(m+b)/2;const flm=g(lm),frm=g(rm);
+    const L=(m-a)/6*(fa+4*flm+fm),R=(b-m)/6*(fm+4*frm+fb),d=L+R-whole;
+    if(lv>=40||(lv>=5&&Math.abs(d)<=15*eps))return L+R+d/15;
+    return asr(a,m,fa,flm,fm,L,eps/2,lv+1)+asr(m,b,fm,frm,fb,R,eps/2,lv+1);}
+  const fa=g(a),fb=g(b),m=(a+b)/2,fm=g(m),whole=(b-a)/6*(fa+4*fm+fb);
+  return clean(asr(a,b,fa,fm,fb,whole,1e-12*Math.max(1,Math.abs(whole)),0));
+}
+function deriv(f,x){const h=1e-3*Math.max(1,Math.abs(x));
+  const v=(-f(x+2*h)+8*f(x+h)-8*f(x-h)+f(x-2*h))/(12*h);return Math.abs(v)<1e-10?0:v;}
+function sigma(f,a,b){if(!isInt(a)||!isInt(b))MATH();a=Math.round(a);b=Math.round(b);if(a>b||b-a>1e6)MATH();let s=0;for(let x=a;x<=b;x++)s+=f(x);return s;}
+function solveEq(F,x0){
+  const sf=x=>{try{const y=F(x);return isFinite(y)?y:NaN;}catch(e){return NaN;}};
+  const scale=x=>Math.max(1,Math.abs(x));
+  function newton(x){for(let k=0;k<100;k++){const y=sf(x);if(isNaN(y))return null;if(y===0)return x;
+    const h=1e-6*scale(x),d=(sf(x+h)-sf(x-h))/(2*h);if(!isFinite(d)||d===0)return null;
+    const nx=x-y/d;if(!isFinite(nx))return null;if(Math.abs(nx-x)<1e-12*scale(x))return nx;x=nx;}return null;}
+  const good=x=>x!==null&&Math.abs(sf(x))<1e-8*Math.max(1,Math.abs(sf(x0))||1);
+  let r=newton(x0);if(good(r))return r;
+  function bis(a,b){let fa=sf(a);for(let k=0;k<200;k++){const m=(a+b)/2,fm=sf(m);if(isNaN(fm))break;if(fa*fm<=0)b=m;else{a=m;fa=fm;}}return(a+b)/2;}
+  let prev=0;for(let k=0;k<600;k++){const s=0.01*Math.pow(1.04,k)*scale(x0);
+    for(const[a,b]of[[x0+prev,x0+s],[x0-s,x0-prev]]){const fa=sf(a),fb=sf(b);
+      if(!isNaN(fa)&&!isNaN(fb)&&fa*fb<=0){const z=bis(a,b);const p=newton(z);const ans=good(p)?p:z;if(Math.abs(sf(ans))<1e-6*scale(ans))return ans;}}
+    prev=s;}
+  throw{kind:'Solve'};
+}
+
+/* =========================================================
+   결과 표시 형식
+   ========================================================= */
+function toFrac(x){
+  if(!isFinite(x)||isInt(x)&&Math.abs(x-Math.round(x))<1e-12)return null;
+  const sg=x<0?-1:1;x=Math.abs(x);let h1=1,h0=0,k1=0,k0=1,b=x;
+  for(let n=0;n<40;n++){const a=Math.floor(b),h2=a*h1+h0,k2=a*k1+k0;
+    if(k2>=1e5||String(h2).length+String(k2).length>10)break;
+    h0=h1;h1=h2;k0=k1;k1=k2;
+    if(Math.abs(x-h1/k1)<=1e-12*Math.max(1,x))return k1===1?null:{n:sg*h1,d:k1};
+    const f=b-a;if(f<1e-13)break;b=1/f;}
+  return null;
+}
+function trimZ(s){return s.indexOf('.')>=0?s.replace(/\.?0+$/,''):s;}
+function fmt(v){
+  if(Object.is(v,-0))v=0;const d=st.disp;
+  if(d.t==='Sci'){const[m,e]=v.toExponential((d.n||10)-1).split('e');return{m,e:+e};}
+  if(d.t==='Fix'){if(Math.abs(v)>=1e10){const[m,e]=v.toExponential(9).split('e');return{m:trimZ(m),e:+e};}return{m:v.toFixed(d.n)};}
+  if(v===0)return{m:'0'};
+  const r=parseFloat(v.toPrecision(10)),a=Math.abs(r),lo=d.n===2?1e-9:1e-2;
+  if(a>=1e10||a<lo){const[m,e]=r.toExponential(9).split('e');return{m:trimZ(m),e:+e};}
+  if(a<1e-6)return{m:trimZ(r.toFixed(Math.min(20,9-Math.floor(Math.log10(a)))))};
+  return{m:String(r)};
+}
+function numHTML(f){let h=f.m.replace('-','−');if(f.e!==undefined)h+='<span class="tim">×10</span><sup>'+String(f.e).replace('-','−')+'</sup>';return h;}
+function plain(v){const f=fmt(v);return f.m+(f.e!==undefined?'×10^'+f.e:'');}
+function dmsStr(v){const sg=v<0?'−':'';let a=Math.abs(v);let d=Math.floor(a),m=Math.floor((a-d)*60),s=Math.round(((a-d)*60-m)*60*100)/100;
+  if(s>=60){s-=60;m++;}if(m>=60){m-=60;d++;}return sg+d+'°'+m+"'"+trimZ(s.toFixed(2))+'"';}
+function engHTML(v,e){const m=parseFloat((v/Math.pow(10,e)).toPrecision(10));return String(m).replace('-','−')+'<span class="tim">×10</span><sup>'+String(e).replace('-','−')+'</sup>';}
+function valueHTML(v){
+  if(st.dmsOut)return dmsStr(v);
+  if(st.eng!==null)return engHTML(v,st.eng);
+  const exact=st.io==='Math'&&st.disp.t==='Norm'&&!st.dec;
+  if(exact){const q=toFrac(v);if(q){const neg=q.n<0,n=Math.abs(q.n);
+    if(st.mixed&&n>q.d){const w=Math.floor(n/q.d),r=n%q.d;return(neg?'−':'')+w+'<span class="fr"><span>'+r+'</span><span>'+q.d+'</span></span>';}
+    return(neg?'−':'')+'<span class="fr"><span>'+n+'</span><span>'+q.d+'</span></span>';}}
+  return numHTML(fmt(v));
+}
+
+/* =========================================================
+   키 동작
+   ========================================================= */
+function clearOut(){st.dec=false;st.mixed=false;st.eng=null;st.dmsOut=false;st.pair=null;st.solve=null;st.note='';}
+function finish(v,o={}){
+  st.result=v;st.ans=v;st.showing=true;clearOut();st.dmsOut=!!o.dms;st.dec=!!o.dec;st.err=null;st.hi=null;
+  if(o.pair){st.pair=o.pair;st.vars.X=o.pair.va;st.vars.Y=o.pair.vb;}
+  const last=st.hist[st.hist.length-1],key=JSON.stringify(st.ed.root);
+  if(st.ed.root.length&&(!last||JSON.stringify(last.root)!==key))st.hist.push({root:clone(st.ed.root),result:v});
+  if(st.hist.length>30)st.hist.shift();save();
+}
+function setErr(e){if(!e||!e.kind)console.error(e);st.err=e&&e.kind==='Math'?'Math ERROR':e&&e.kind==='Solve'?"Can't Solve":'Syntax ERROR';st.showing=false;}
+function equals(approx){
+  if(!st.ed.root.length)return false;
+  try{const c=compile(ser(st.ed.root));if(c.eq)SYN();lastPair=null;const v=chk(c.f({}));
+    const t0=ser(st.ed.root)[0];finish(v,{dms:c.dms,dec:approx,pair:(lastPair&&(t0==='Pol('||t0==='Rec('))?lastPair:null});return true;}
+  catch(e){setErr(e);return false;}
+}
+function varsIn(toks){const s=[];toks.forEach(t=>{if(VARS.includes(t)&&!s.includes(t))s.push(t);});return s;}
+function startPrompt(label,cur,onEnter){
+  if(!st.mainEd)st.mainEd=st.ed;st.ed=newEd();st.prompt={label,cur,onEnter};st.showing=false;
+}
+function promptEnter(){
+  const p=st.prompt;let v=p.cur;
+  try{if(st.ed.root.length){const c=compile(ser(st.ed.root));if(c.eq)SYN();v=chk(c.f({}));}}
+  catch(e){st.prompt=null;st.ed=st.mainEd;st.mainEd=null;setErr(e);return;}
+  st.prompt=null;st.ed=st.mainEd;st.mainEd=null;p.onEnter(v);
+}
+function chain(list,done){const next=()=>{if(!list.length){done();return;}const[v,l]=list.shift();startPrompt(l||v+'?',st.vars[v],val=>{st.vars[v]=val;save();next();});};next();}
+function doCalc(){
+  if(!st.ed.root.length)return;let c,toks=ser(st.ed.root);
+  try{c=compile(toks);}catch(e){setErr(e);return;}
+  st.showing=false;clearOut();
+  const tgt=c.eq&&c.eq.leftVar;const vars=varsIn(toks).filter(v=>v!==tgt||toks.indexOf(v)!==toks.lastIndexOf(v)).map(v=>[v]);
+  chain(vars,()=>{try{lastPair=null;let v;
+    if(c.eq){if(tgt){v=chk(c.eq.r({}));st.vars[tgt]=v;}else v=chk(c.eq.l({})-c.eq.r({}));}else v=chk(c.f({}));
+    finish(v,{dms:c.dms});if(tgt)st.note=tgt+'=';else if(c.eq)st.note='L−R=';}catch(e){setErr(e);}});
+}
+function doSolve(){
+  if(!st.ed.root.length)return;const toks=ser(st.ed.root);let c;
+  try{c=compile(toks);}catch(e){setErr(e);return;}
+  if(!toks.includes('X')){toast('SOLVE는 변수 X가 들어간 식에서 써요 (ALPHA + ) 키 = X)');return;}
+  st.showing=false;clearOut();
+  const F=c.eq?(x=>c.eq.l({X:x})-c.eq.r({X:x})):(x=>c.f({X:x}));
+  const others=varsIn(toks).filter(v=>v!=='X').map(v=>[v]);
+  chain(others,()=>{startPrompt('Solve for X',st.vars.X,x0=>{
+    try{const x=solveEq(F,x0);st.vars.X=x;const lr=clean(F(x));finish(x);st.solve={lr};st.note='X=';}
+    catch(e){setErr(e);}});});
+}
+function setMenu(lines,pick,opt={}){st.menu={lines,pick,one:opt.one,digits:opt.digits||1,buf:''};}
+const NA='na';
+function cmd(c){
+  switch(c){
+  case 'up':case 'down':{
+    if(!st.showing&&!st.err&&moveUD(c==='up'?-1:1))break;
+    if(st.prompt||!st.hist.length)break;
+    if(c==='up')st.hi=st.hi===null?st.hist.length-1:Math.max(0,st.hi-1);
+    else{if(st.hi===null)break;st.hi=Math.min(st.hist.length-1,st.hi+1);}
+    const h=st.hist[st.hi];st.ed={root:clone(h.root),cur:null};st.ed.cur={list:st.ed.root,idx:st.ed.root.length};
+    clearOut();st.result=h.result;st.showing=true;st.err=null;break;}
+  case 'left':case 'right':
+    if(st.err){st.err=null;st.ed.cur={list:st.ed.root,idx:st.ed.root.length};break;}
+    if(st.showing){st.showing=false;clearOut();st.ed.cur=c==='left'?{list:st.ed.root,idx:st.ed.root.length}:{list:st.ed.root,idx:0};break;}
+    moveLR(c==='left'?-1:1);break;
+  case 'del':if(st.err){st.err=null;break;}if(st.showing){st.showing=false;clearOut();st.ed.cur={list:st.ed.root,idx:st.ed.root.length};}del();st.hi=null;break;
+  case 'ac':case 'on':
+    if(c==='on')st.off=false;
+    if(st.prompt){st.prompt=null;st.ed=st.mainEd;st.mainEd=null;}
+    st.ed=newEd();st.showing=false;st.err=null;st.menu=null;st.pend=null;clearOut();st.hi=null;break;
+  case 'off':st.off=true;break;
+  case 'eq':
+    if(st.prompt){promptEnter();break;}
+    if(st.err)break;equals(false);break;
+  case 'approx':if(st.prompt){promptEnter();break;}if(st.err)break;if(st.showing){st.dec=true;break;}equals(true);break;
+  case 'sd':if(st.err)break;if(!st.showing){if(!equals())break;}st.dec=!st.dec;st.eng=null;
+    if(!st.dec&&!toFrac(st.result))toast('분수로 나타낼 수 없는 값이에요');break;
+  case 'mixtoggle':if(st.showing){st.mixed=!st.mixed;st.dec=false;if(!toFrac(st.result))toast('분수로 나타낼 수 없는 값이에요');}break;
+  case 'dms':if(st.showing){st.dmsOut=!st.dmsOut;st.eng=null;}else insert(['°']);break;
+  case 'dmsoff':if(st.showing){st.dmsOut=false;st.dec=true;}break;
+  case 'eng':case 'engl':
+    if(!st.showing){if(!equals())break;}
+    {const v=st.result;let base=v===0?0:Math.floor(Math.log10(Math.abs(parseFloat(v.toPrecision(10))))/3)*3;
+     if(st.eng===null)st.eng=c==='eng'?base:base+3;else st.eng+=c==='eng'?-3:3;st.dmsOut=false;}break;
+  case 'mplus':case 'mminus':{let v;if(st.showing)v=st.result;else{if(!equals())break;v=st.result;}
+    st.vars.M+=c==='mplus'?v:-v;if(Math.abs(st.vars.M)<1e-15)st.vars.M=0;st.note=c==='mplus'?'M+':'M−';save();break;}
+  case 'calc':if(st.prompt){promptEnter();break;}doCalc();break;
+  case 'solve':doSolve();break;
+  case 'rcl':st.pend='rcl';break;
+  case 'sto':st.pend='sto';break;
+  case 'hyp':setMenu(['1:sinh','2:cosh','3:tanh','4:sinh⁻¹','5:cosh⁻¹','6:tanh⁻¹'],d=>{const f=['sinh(','cosh(','tanh(','sinh⁻¹(','cosh⁻¹(','tanh⁻¹('][d-1];if(!f)return false;insert([f]);return true;});break;
+  case 'drg':setMenu(['1:°','2:ʳ','3:ᵍ'],d=>{const t=['ᴰ','ʳ','ᵍ'][d-1];if(!t)return false;insert([t]);return true;},{one:1});break;
+  case 'mode':setMenu(['1:COMP','2:CMPLX','3:STAT','4:BASE-N','5:EQN','6:MATRIX','7:TABLE','8:VECTOR'],d=>{
+      if(d===1){cmd('ac');toast('COMP (일반 계산) 모드');return true;}
+      if(d>=2&&d<=8){toast('이 웹 계산기에는 일반 계산(COMP) 모드만 있어요');return true;}return false;});break;
+  case 'setup':setMenu(['1:MthIO','2:LineIO','3:Deg','4:Rad','5:Gra','6:Fix','7:Sci','8:Norm'],d=>{
+      if(d===1){st.io='Math';}else if(d===2){st.io='Line';}
+      else if(d>=3&&d<=5){st.angle=['DEG','RAD','GRA'][d-3];}
+      else if(d===6){setMenu(['Fix 0~9?'],n=>{st.disp={t:'Fix',n};save();return true;},{one:1});return 'keep';}
+      else if(d===7){setMenu(['Sci 0~9?'],n=>{st.disp={t:'Sci',n};save();return true;},{one:1});return 'keep';}
+      else if(d===8){setMenu(['Norm 1~2?'],n=>{if(n!==1&&n!==2)return false;st.disp={t:'Norm',n};save();return true;},{one:1});return 'keep';}
+      else return false;save();return true;});break;
+  case 'clr':setMenu(['1:Setup','2:Memory','3:All'],d=>{
+      if(d===1){st.angle='DEG';st.io='Math';st.disp={t:'Norm',n:1};toast('설정을 처음 상태로 돌렸어요');}
+      else if(d===2){VARS.forEach(v=>st.vars[v]=0);st.ans=0;toast('변수·메모리를 지웠어요');}
+      else if(d===3){st.angle='DEG';st.io='Math';st.disp={t:'Norm',n:1};VARS.forEach(v=>st.vars[v]=0);st.ans=0;st.hist=[];toast('모두 지웠어요');}
+      else return false;save();cmd('ac');return true;},{one:1});break;
+  case 'const':setMenu(['CONST 01~40?','(두 자리 번호 입력)'],n=>{if(n<1||n>40)return false;insert(['cst:'+n]);toast(CONST[n-1][0]+' : '+CONST[n-1][1]);return true;},{one:1,digits:2});break;
+  case 'conv':setMenu(['CONV 01~40?','(두 자리 번호 입력)','예) 25 atm▶Pa  31 kgf/cm²▶Pa'],n=>{if(n<1||n>40)return false;insert(['cv:'+n]);toast(CONV[n-1][0]);return true;},{one:1,digits:2});break;
+  case 'colon':toast('여러 식 이어 쓰기(:)는 지원하지 않아요');break;
+  case 'ins':toast('자연 표시 모드에서는 항상 끼워넣기로 입력돼요');break;
+  case NA:toast('이 기능은 일반 계산(COMP) 모드 계산기에는 없어요');break;
+  }
+}
+function press(k){
+  try{navigator.vibrate&&navigator.vibrate(5)}catch(e){}
+  if(st.off){if(k.a==='on'){cmd('on');render();}return;}
+  if(k.a==='shift'){st.shift=!st.shift;st.alpha=false;render();return;}
+  if(k.a==='alpha'){st.alpha=!st.alpha;st.shift=false;render();return;}
+  // STO / RCL 대기 중이면 변수 키를 받음
+  if(st.pend){const p=st.pend;st.pend=null;
+    if(k.v){st.shift=false;st.alpha=false;
+      if(p==='sto'){let v;if(st.showing)v=st.result;else if(equals())v=st.result;
+        if(v!==undefined){st.vars[k.v]=v;save();st.note='Ans→'+k.v;}}
+      else{st.ed=newEd();clearOut();st.result=st.vars[k.v];st.showing=true;st.err=null;st.note=k.v+'=';}
+      render();return;}
+  }
+  // 메뉴에서 숫자 고르기
+  if(st.menu){const mm=st.menu;
+    if(k.a==='ac'||k.a==='on'){st.menu=null;st.shift=st.alpha=false;render();return;}
+    if(Array.isArray(k.a)&&/^[0-9]$/.test(k.a[0])&&!st.shift&&!st.alpha){
+      mm.buf+=k.a[0];
+      if(mm.buf.length>=mm.digits){const n=parseInt(mm.buf,10);st.menu=null;const r=mm.pick(n);
+        if(r===false){st.menu=mm;mm.buf='';}}
+      render();return;}
+    st.shift=st.alpha=false;render();return;
+  }
+  let act;
+  if(st.alpha&&k.aa)act=k.aa;else if(st.shift&&k.sa)act=k.sa;else act=k.a;
+  st.shift=false;st.alpha=false;
+  if(Array.isArray(act))insert(act);else cmd(act);
+  render();
+}
+
+/* =========================================================
+   화면 그리기
+   ========================================================= */
+const TOKTXT={'(-)':'−','ᴰ':'°','E':'<span class="small">ᴇ</span>','⁻¹':'<span class="sp">−1</span>','²':'<span class="sp">2</span>','³':'<span class="sp">3</span>'};
+function tokHTML(t){
+  if(TOKTXT[t])return TOKTXT[t];
+  if(t.startsWith('cst:'))return '<i>'+CONST[+t.slice(4)-1][0]+'</i>';
+  if(t.startsWith('cv:'))return '<span class="small">'+CONV[+t.slice(3)-1][0].replace('▶','▶')+'</span>';
+  if(/^[A-FXYM]$/.test(t))return '<i>'+t+'</i>';
+  return t;
+}
+let showCur=true;
+function rl(L,isSlot){
+  let h='';const c=st.ed.cur;
+  if(isSlot&&!L.length)return(c.list===L&&showCur)?'<span class="cur" id="cur"></span><span class="ph"></span>':'<span class="ph"></span>';
+  for(let j=0;j<=L.length;j++){
+    if(showCur&&c.list===L&&c.idx===j)h+='<span class="cur" id="cur"></span>';
+    if(j<L.length)h+=typeof L[j]==='string'?tokHTML(L[j]):tplHTML(L[j]);
+  }return h;
+}
+function tplHTML(t){const s=t.s.map(x=>rl(x,true));
+  switch(t.t){
+  case 'frac':return '<span class="fr"><span>'+s[0]+'</span><span>'+s[1]+'</span></span>';
+  case 'mixed':return s[0]+'<span class="fr"><span>'+s[1]+'</span><span>'+s[2]+'</span></span>';
+  case 'sqrt':return '<span class="rt">√<span class="rtin">'+s[0]+'</span></span>';
+  case 'cbrt':return '<span class="rt"><span class="ri">3</span>√<span class="rtin">'+s[0]+'</span></span>';
+  case 'xroot':return '<span class="rt"><span class="ri">'+s[0]+'</span>√<span class="rtin">'+s[1]+'</span></span>';
+  case 'pow':return '<span class="sp">'+s[0]+'</span>';
+  case 'logab':return 'log<span class="sb">'+s[0]+'</span>('+s[1]+')';
+  case 'abs':return '|'+s[0]+'|';
+  case 'integ':return '<span class="bigi">∫</span><span class="lim"><span>'+s[2]+'</span><span>'+s[1]+'</span></span>('+s[0]+')<span class="small">dx</span>';
+  case 'deriv':return '<span class="fr"><span>d</span><span>dx</span></span>('+s[0]+')<span class="sb">|x='+s[1]+'</span>';
+  case 'sum':return '<span class="lim c"><span>'+s[2]+'</span><span class="big">Σ</span><span>x='+s[1]+'</span></span>('+s[0]+')';
+  }return '';}
+const $=id=>document.getElementById(id);
+const $in=$('input'),$res=$('result'),$calc=$('calc'),$lcd=$('lcd');
+function render(){
+  $calc.classList.toggle('shifted',st.shift);$calc.classList.toggle('alphaed',st.alpha);
+  $lcd.classList.toggle('off',st.off);
+  const on=(id,b)=>$(id).classList.toggle('on',!!b);
+  on('iS',st.shift);on('iA',st.alpha);on('iM',st.vars.M!==0);on('iSTO',st.pend==='sto');on('iRCL',st.pend==='rcl');
+  on('iFIX',st.disp.t==='Fix');on('iSCI',st.disp.t==='Sci');on('iMath',st.io==='Math');
+  $('iAng').textContent=st.angle[0];
+  on('iUp',st.hist.length&&!st.prompt&&!st.menu);on('iDn',st.hi!==null&&st.hi<st.hist.length-1);
+  $res.style.fontSize='';
+  if(st.menu){$in.innerHTML='<div class="menu'+(st.menu.one?' one':'')+'">'+st.menu.lines.map(l=>'<div>'+l+'</div>').join('')+(st.menu.buf?'<div>'+st.menu.buf+'</div>':'')+'</div>';$res.innerHTML='';return;}
+  if(st.err){$in.innerHTML='<div><div class="err">'+st.err+'</div><div class="errhint">[AC] : 취소 &nbsp; [◀][▶] : 식 고치기</div></div>';$res.innerHTML='';return;}
+  if(st.prompt){
+    showCur=true;const p=st.prompt;
+    $in.innerHTML='<div class="inner"><span class="prompt">'+p.label+'</span></div>';
+    $res.innerHTML=st.ed.root.length?'<span class="inner">'+rl(st.ed.root,false)+'</span>':'<span class="cur"></span>&nbsp;'+valueHTML(p.cur);
+    return;}
+  showCur=!st.showing;
+  if(st.showing&&st.note&&!st.ed.root.length)$in.innerHTML='<div class="inner">'+st.note.replace('Ans→','Ans→')+'</div>';
+  else $in.innerHTML='<div class="inner">'+rl(st.ed.root,false)+'</div>';
+  // 커서가 보이도록 가로 스크롤
+  const cur=$('cur');
+  if(cur){const cr=cur.getBoundingClientRect(),ir=$in.getBoundingClientRect();
+    if(cr.right>ir.right-6)$in.scrollLeft+=cr.right-ir.right+30;else if(cr.left<ir.left+4)$in.scrollLeft=Math.max(0,$in.scrollLeft-(ir.left-cr.left)-30);}
+  else $in.scrollLeft=0;
+  if(!st.showing){$res.innerHTML='';return;}
+  if(st.pair){$res.innerHTML='<div class="two"><div><span>'+st.pair.a+'=</span><span>'+numHTML(fmt(st.pair.va))+'</span></div><div><span>'+st.pair.b+'=</span><span>'+numHTML(fmt(st.pair.vb))+'</span></div></div>';return;}
+  if(st.solve){$res.innerHTML='<div class="two"><div><span>X=</span><span>'+valueHTML(st.result)+'</span></div><div class="small"><span>L−R=</span><span>'+numHTML(fmt(st.solve.lr))+'</span></div></div>';return;}
+  const lbl=(st.note&&st.note!=='M+'&&st.note!=='M−'&&!st.note.startsWith('Ans→'))?'<span class="lbl">'+st.note+'</span>':'';
+  $res.innerHTML=lbl+valueHTML(st.result);
+  let fs=30;while($res.scrollWidth>$res.clientWidth&&fs>14){fs-=2;$res.style.fontSize=fs+'px';}
+}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800);}
+
+/* 결과 누르면 복사 */
+$res.addEventListener('click',()=>{if(!st.showing)return;const txt=String(parseFloat(st.result.toPrecision(12)));
+  try{navigator.clipboard.writeText(txt).then(()=>toast('복사됨: '+txt),()=>toast('복사할 수 없어요'));}catch(e){toast('복사할 수 없어요');}});
+
+/* PC 키보드 */
+const KB={'+':['+'],'-':['−'],'*':['×'],'/':['÷'],'^':['#pow'],'(':['('],')':[')'],'.':['.'],'!':['!'],'%':['%'],',':[','],
+  s:['sin('],c:['cos('],t:['tan('],l:['log('],n:['ln('],r:['#sqrt'],p:['π'],e:['e'],a:['Ans'],f:['#frac'],x:['X']};
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key;let a=null;
+  if(/^[0-9]$/.test(k))a=[k];else if(KB[k])a=KB[k];
+  else if(k==='Enter'||k==='=')a='eq';else if(k==='Backspace')a='del';else if(k==='Escape'||k==='Delete')a='ac';
+  else if(k==='ArrowLeft')a='left';else if(k==='ArrowRight')a='right';else if(k==='ArrowUp')a='up';else if(k==='ArrowDown')a='down';
+  if(a===null)return;e.preventDefault();press({a});
+});
+
+render();
+window.__calc={st,compile,ser,press,toFrac,fmt,FN_REST,NUM,FN_TOP};
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+})();
+</script>
+</body>
+</html>
