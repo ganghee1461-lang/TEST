@@ -37,6 +37,8 @@ body{display:flex;justify-content:center;align-items:center;
 .status span{opacity:.1}.status span.on{opacity:1}.status .grow{flex:1}
 .input{flex:1;min-height:0;font-size:21px;white-space:nowrap;overflow:hidden;display:flex;align-items:center}
 .inner{display:inline-block;white-space:nowrap;padding-right:8px}
+.input{cursor:text}
+.pm{display:inline-block;width:0;height:1em;vertical-align:-.15em}
 .cur{display:inline-block;width:2px;height:1.05em;background:var(--lcdText);vertical-align:-.15em;margin:0 -1px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .ph{display:inline-block;width:.55em;height:.75em;border:1px dashed var(--lcdText);vertical-align:-.05em;margin:0 1px;opacity:.7}
@@ -623,11 +625,15 @@ function tokHTML(t){
   if(/^[A-FXYM]$/.test(t))return '<i>'+t+'</i>';
   return t;
 }
-let showCur=true;
+let showCur=true,posList=[],posMap=new Map();
+// 화면 터치용: 커서가 갈 수 있는 자리마다 보이지 않는 표시(pm)를 넣음
+function buildPos(){posList=positions();posMap=new Map();posList.forEach(([L,j],k)=>{if(!posMap.has(L))posMap.set(L,new Map());posMap.get(L).set(j,k);});}
+const pm=(L,j)=>{const m=posMap.get(L);return m&&m.has(j)?'<span class="pm" data-k="'+m.get(j)+'"></span>':'';};
 function rl(L,isSlot){
   let h='';const c=st.ed.cur;
-  if(isSlot&&!L.length)return(c.list===L&&showCur)?'<span class="cur" id="cur"></span><span class="ph"></span>':'<span class="ph"></span>';
+  if(isSlot&&!L.length)return pm(L,0)+((c.list===L&&showCur)?'<span class="cur" id="cur"></span><span class="ph"></span>':'<span class="ph"></span>');
   for(let j=0;j<=L.length;j++){
+    h+=pm(L,j);
     if(showCur&&c.list===L&&c.idx===j)h+='<span class="cur" id="cur"></span>';
     if(j<L.length)h+=typeof L[j]==='string'?tokHTML(L[j]):tplHTML(L[j]);
   }return h;
@@ -664,7 +670,7 @@ function render(){
     $in.innerHTML='<div class="inner"><span class="prompt">'+p.label+'</span></div>';
     $res.innerHTML=st.ed.root.length?'<span class="inner">'+rl(st.ed.root,false)+'</span>':'<span class="cur"></span>&nbsp;'+valueHTML(p.cur);
     return;}
-  showCur=!st.showing;
+  showCur=!st.showing;buildPos();
   if(st.showing&&st.note&&!st.ed.root.length)$in.innerHTML='<div class="inner">'+st.note.replace('Ans→','Ans→')+'</div>';
   else $in.innerHTML='<div class="inner">'+rl(st.ed.root,false)+'</div>';
   // 커서가 보이도록 가로 스크롤
@@ -680,6 +686,22 @@ function render(){
   let fs=30;while($res.scrollWidth>$res.clientWidth&&fs>14){fs-=2;$res.style.fontSize=fs+'px';}
 }
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800);}
+
+/* 식을 터치하면 그 자리로 커서 이동 */
+$in.addEventListener('pointerdown',e=>{
+  if(st.off||st.menu||st.prompt||st.err||st.pend)return;
+  if(st.showing&&st.note&&!st.ed.root.length)return;
+  const ms=$in.querySelectorAll('.pm');if(!ms.length)return;
+  e.preventDefault();
+  let best=null,bd=Infinity;
+  ms.forEach(m=>{const r=m.getBoundingClientRect();const cy=r.top+r.height/2;
+    const d=Math.pow(e.clientX-r.left,2)+Math.pow((e.clientY-cy)*2.5,2);if(d<bd){bd=d;best=m;}});
+  const p=posList[+best.dataset.k];if(!p)return;
+  if(st.showing){st.showing=false;clearOut();}
+  st.hi=null;st.shift=st.alpha=false;st.ed.cur={list:p[0],idx:p[1]};
+  try{navigator.vibrate&&navigator.vibrate(5)}catch(_){}
+  render();
+});
 
 /* 결과 누르면 복사 */
 $res.addEventListener('click',()=>{if(!st.showing)return;const txt=String(parseFloat(st.result.toPrecision(12)));

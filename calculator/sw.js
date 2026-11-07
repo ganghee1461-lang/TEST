@@ -1,5 +1,5 @@
 // 오프라인용: 한 번 열면 파일을 저장해 두고, 인터넷이 없어도 계산기가 열리게 함
-const CACHE = 'sc-calc-v2';
+const CACHE = 'sc-calc-v3';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
