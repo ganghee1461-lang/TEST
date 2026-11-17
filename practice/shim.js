@@ -311,6 +311,14 @@
     if (!cfg().apiKey) b.classList.add("nokey");
     b.onclick = openSettings;
     document.body.append(b);
+    /* 머리줄(풀이 화면 .bar, 홈 .top)이 있으면 그 안으로 옮김 */
+    const place = () => {
+      const host = document.querySelector(".bar .row1") || document.querySelector(".top > :last-child");
+      if (host){ if (b.parentElement !== host){ host.append(b); } b.classList.add("inbar"); }
+      else if (b.parentElement !== document.body){ document.body.append(b); b.classList.remove("inbar"); }
+    };
+    new MutationObserver(place).observe(document.body, {childList: true, subtree: true});
+    place();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountGear); else mountGear();
   window.gpOpenSettings = openSettings;

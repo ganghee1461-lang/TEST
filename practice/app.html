@@ -471,6 +471,35 @@ sup.fnref a:hover{background:var(--link);color:#fff}
 .ask.wikip .wdoc{gap:14px}
 .ask.wikip .wsec .md{font-size:.96rem}
 @media (max-width:760px){ .wsec .md{font-size:.98rem} .wdoc{padding:16px} .wdoc h1{font-size:1.35rem} .exp-body{grid-template-columns:minmax(0,1fr)} .exp-k{padding-top:0} }
+
+/* ───── 웹앱 UI 정리: 버튼 높이·모서리·간격 통일 ───── */
+:root{--ctl:38px;--ctl-sm:32px;--r:8px}
+.btn{min-height:var(--ctl);border-radius:var(--r);padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.2}
+.btn.sm{min-height:var(--ctl-sm);padding:0 12px;font-size:.82rem}
+.btn.ghost{padding-inline:10px}
+.star{min-height:var(--ctl-sm);border-radius:var(--r);padding:0 12px;font-size:.82rem}
+.star.minus{padding:0 10px}
+.starbox{display:inline-flex;gap:0}.starbox .star:first-child{border-radius:var(--r) 0 0 var(--r)}.starbox .star.minus{border-radius:0 var(--r) var(--r) 0;margin-left:-1px}
+.units button{min-height:var(--ctl-sm);border-radius:var(--r)}
+.units .hint{display:none}
+.sugs button{min-height:var(--ctl-sm);border-radius:var(--r);padding:0 12px;background:var(--surface)}
+.field input,.field textarea,.askf textarea{border-radius:var(--r)}
+.qno{border-radius:var(--r);padding:2px 9px}
+.tag-check{border-radius:var(--r)}
+.map button{border-radius:var(--r)}
+.bar .row1{gap:8px}
+/* 채점·이동 버튼 한 줄: 화면 아래에 붙음 */
+.qbar{grid-column:1/-1;position:sticky;bottom:0;z-index:4;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line)}
+.no-photo .qbar{padding-inline:24px}
+.qbar .sp{flex:1}
+.qbar .btn{min-width:84px}
+#res:empty{display:none}
+.top > :last-child{display:flex;align-items:center;gap:8px}
+.qa .row{width:100%}
+.qa .row select{flex:1 1 120px;min-width:0;min-height:30px}
+.qa .row input[type=number]{min-height:30px}
+/* 설정 버튼: 머리줄 안에 */
+#gp-gear.inbar{position:static!important;width:var(--ctl-sm)!important;height:var(--ctl-sm)!important;box-shadow:none!important;border-radius:var(--r)!important;font-size:16px!important;flex:0 0 auto}
 </style>
 
 <div class="wrap" id="app"><p class="empty">문제를 불러오는 중…</p></div>
@@ -1576,10 +1605,7 @@ function renderHome(){
   </div>
   <div class="quick">
     ${lastOk ? `<button class="qa main" id="go-last"><b>이어서 풀기</b><span>${esc(setName(QI.get(last.id).set))} ${QI.get(last.id).q.no}번부터${(() => { const pr = roundProg(QI.get(last.id).set); return !pr.rest && pr.rd.no > 1 ? ` · ${pr.rd.no}회독째 ${pr.done}/${pr.ids.length}` : ""; })()}</span></button>` : ""}
-    ${st.review ? `<button class="qa ${lastOk ? "" : "main"}" id="go-review"><b>틀린 문제 복습</b><span>${st.review}문제</span></button>` : ""}
-    <div class="qa" id="go-random" role="button" tabindex="0"><b>랜덤 문제</b><span>약점 문제 1/3 + 오래 안 본 문제</span>
-      <span class="row"><select id="rscope" aria-label="범위">${["전체", ...SECTIONS.map(s => s.name)].map(n => `<option ${n === randomScope ? "selected" : ""}>${n}</option>`).join("")}</select><input type="number" id="rn" min="1" max="${randMax()}" value="${Math.min(lsGet(RAND_CNT_KEY, RANDOM_N) || RANDOM_N, randMax())}" aria-label="풀 문제 수" inputmode="numeric"><small>문제</small></span></div>
-    <div class="qa ${!lastOk && !st.review ? "main" : ""}" id="go-mock" role="button" tabindex="0"><b>모의고사</b><span>랜덤: 필답형 ${cycState("필답형").n}회독째 ${allIds("필답형").length - cycLeft("필답형").length}/${allIds("필답형").length} · 작업형 ${cycState("작업형").n}회독째 ${allIds("작업형").length - cycLeft("작업형").length}/${allIds("작업형").length}</span>
+    <div class="qa ${!lastOk ? "main" : ""}" id="go-mock" role="button" tabindex="0"><b>모의고사</b><span>랜덤: 필답형 ${cycState("필답형").n}회독째 ${allIds("필답형").length - cycLeft("필답형").length}/${allIds("필답형").length} · 작업형 ${cycState("작업형").n}회독째 ${allIds("작업형").length - cycLeft("작업형").length}/${allIds("작업형").length}</span>
       <span class="row"><select id="msec" aria-label="영역">${["both", "필답형", "작업형"].map(x => `<option value="${x}" ${x === mockSec ? "selected" : ""}>${secLabel(x)}</option>`).join("")}</select><select id="mscope" aria-label="모의고사 회차">${mockScopeOpts()}</select><input type="number" id="mn" min="1" max="${mockMax(mockScope, mockSec)}" value="${mockCount()}" aria-label="풀 문제 수" inputmode="numeric"><small>문제</small></span></div>
     ${st.star ? `<div class="qa" id="go-star" role="button" tabindex="0"><b>별표 문제</b><span>별표 ${st.star}문제${starMax > 1 ? ` (${Array.from({length: starMax - 1}, (_, i) => i + 2).map(k => `★${k}↑ ${starIds(k).length}`).join(" · ")})` : ""}</span>
       <span class="row">${starMax > 1 ? `<select id="smin" aria-label="별 개수">${Array.from({length: starMax}, (_, i) => i + 1).map(k => `<option value="${k}" ${k === sMin ? "selected" : ""}>${k === 1 ? "별표 전체" : `★${k}개 이상`} · ${starIds(k).length}</option>`).join("")}</select>` : ""}<input type="number" id="sn" min="1" max="${st.star}" value="${Math.min(lsGet(STAR_N_KEY, st.star) || st.star, starIds(sMin).length)}" aria-label="풀 문제 수" inputmode="numeric"><small>문제</small></span></div>` : ""}
@@ -1598,12 +1624,6 @@ function renderHome(){
   if ($("sync-retry")) $("sync-retry").onclick = () => { $("sync-retry").disabled = true; $("sync-retry").textContent = "연결하는 중…"; Store.retry(true); };
   $("go-wiki").onclick = () => openWiki("");
   if (lastOk) $("go-last").onclick = () => openSet(QI.get(last.id).set, last.id);
-  if ($("go-review")) $("go-review").onclick = () => startSession("틀린 문제 복습", reviewIds());
-  const goRandom = () => { let n = Math.round(+$("rn").value); if (!(n > 0)) n = RANDOM_N; n = Math.min(n, randMax()); lsSet(RAND_CNT_KEY, n); const ids = randomIds(randomScope, n); if (ids.length) startSession(`랜덤 ${ids.length}문제 · ${randomScope}`, ids); else toast("이 범위에는 아직 문제가 없습니다."); };
-  $("go-random").onclick = e => { if (!["INPUT", "SELECT", "OPTION"].includes(e.target.tagName)) goRandom(); };
-  $("go-random").onkeydown = e => { if ((e.key === "Enter" || e.key === " ") && e.target.id === "go-random"){ e.preventDefault(); goRandom(); } };
-  $("rscope").onchange = e => { randomScope = e.target.value; const mx = randMax(); $("rn").max = mx; if (+$("rn").value > mx) $("rn").value = mx; };
-  $("rn").onchange = e => { const v = Math.round(+e.target.value); if (v > 0) lsSet(RAND_CNT_KEY, Math.min(v, randMax())); };
   if ($("go-star")){
     const goStar = () => { const k = +($("smin")?.value || 1), total = starIds(k).length; if (!total) return toast("해당하는 별표 문제가 없습니다."); let n = Math.round(+$("sn").value); if (!(n > 0)) n = total; n = Math.min(n, total); lsSet(STAR_N_KEY, n); lsSet(STAR_MIN_KEY, k); const ids = starPick(n, k); const lab = k > 1 ? `★${k}개 이상` : "별표"; startSession(n >= total ? `${lab} 문제 ${total}개` : `${lab} ${n}문제 (전체 ${total})`, ids); };
     $("go-star").onclick = e => { if (!["INPUT", "SELECT", "OPTION"].includes(e.target.tagName)) goStar(); };
@@ -2090,11 +2110,10 @@ function renderSolve(){
       <form id="f">
         ${inkOn ? inkToolbar() : ""}
         ${formHTML(q, r, draft)}
-        <div class="actions"><button class="btn primary" id="grade" type="submit">채점</button><button class="btn" id="peek" type="button">정답 보기</button></div>
       </form>
       <div id="res">${resBox(q, r, id)}</div>
-      <div class="nav"><button class="btn" id="prev" ${session.i === 0 ? "disabled" : ""}>← 이전</button><button class="btn ${r?.v ? "primary" : ""}" id="next">${last ? (session.peek && jumpStack.length ? "풀던 문제로 →" : "결과 보기") : "다음 →"}</button></div>
     </div>
+    <div class="qbar"><button class="btn primary" id="grade" type="submit" form="f">채점</button><button class="btn" id="peek" type="button">정답 보기</button><span class="sp"></span><button class="btn" id="prev" ${session.i === 0 ? "disabled" : ""}>← 이전</button><button class="btn ${r?.v ? "primary" : ""}" id="next">${last ? (session.peek && jumpStack.length ? "풀던 문제로 →" : "결과 보기") : "다음 →"}</button></div>
   </article>
   </div>
   </div>
