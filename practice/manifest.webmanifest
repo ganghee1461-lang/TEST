@@ -1,0 +1,15 @@
+{
+ "name": "가스기능사 실기 연습장",
+ "short_name": "가스 실기",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#f3f4f2",
+ "theme_color": "#e0a800",
+ "icons": [
+  {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+  {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
+  {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}
+ ]
+}
