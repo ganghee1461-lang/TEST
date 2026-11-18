@@ -9,9 +9,13 @@
 .pexp{line-height:1.7;padding:6px 2px}
 .srcnote{margin-top:18px;line-height:1.6}
 .stats.mock-score.one{grid-template-columns:minmax(0,1fr)}
+.wfind{display:flex;gap:6px;margin:8px 0 4px}.wfind input{flex:1;min-width:0;font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg,transparent);color:inherit}
+.ask .wfind{flex-direction:row!important;align-items:center}.ask .wfind .btn{width:auto;flex:none}
+.wfind-hits{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.wfind-hits:empty{display:none}
+.keycard{border:1px dashed var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:6px}.keycard p{margin:0;line-height:1.6}
 .ask:empty{display:none!important}
 @media (min-width:1100px){.solve:has(> .ask:empty){display:block}.solve:has(> .ask:empty) .solve-main{min-width:0;max-width:100%}}
-</style></head><body>
+</style></head><body><script src="shim.js"></script>
 <title>가스기능사 필기 연습장</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -1024,11 +1028,11 @@ function gradePrompt(q, ans, local){
   return L.join("\n");
 }
 const TUTOR_RULES = [
-  "당신은 가스기능사 실기시험(필기·작업형)을 준비하는 학습자의 튜터입니다. 학습자는 도시가스 회사 배관영업 신입이라 배관·가스 용어가 아직 낯섭니다.",
+  "당신은 가스기능사 필기시험(4지선다 객관식 60문제, 60점 이상 합격)을 준비하는 학습자의 튜터입니다. 학습자는 도시가스 회사 배관영업 신입이라 배관·가스 용어가 아직 낯섭니다.",
   "답변 규칙:",
   "- 한국어로, 결론부터 짧게 말하고 필요하면 단계별로 설명하세요.",
   "- 전문 용어는 처음 나올 때 괄호로 쉽게 풀어 주세요.",
-  "- 아래 [문제 자료]의 모범답안과 관련 이론을 기준으로 설명하고, 책에 없는 일반 지식을 덧붙일 때는 그렇다고 밝혀 주세요.",
+  "- 아래 [문제 자료]의 보기·정답·해설을 기준으로 설명하고(해설은 AI가 쓴 참고용이라 틀릴 수 있음), 오답 보기가 왜 틀렸는지도 짚어 주고, 책에 없는 일반 지식을 덧붙일 때는 그렇다고 밝혀 주세요.",
   "- 법규 수치나 기준이 확실하지 않으면 추측하지 말고 '최신 KGS 기준 확인 필요'라고 말하세요.",
   "- 공식이나 계산이 나오면 반드시 아래 '공식 카드'로 쓰세요. 공식 하나에 카드 하나, 카드 밖에서는 공식을 다시 늘어놓지 마세요. 카드 앞뒤 설명은 짧게.",
   "  공식 카드 형식(줄 맨 앞 이름 그대로, 기호·대입 줄은 여러 개 가능, 없는 줄은 생략):",
@@ -1049,12 +1053,14 @@ const TUTOR_RULES = [
   "- 장치·개념 용어(예: 정압기, 긴급차단장치, 내압방폭구조, 희생양극법)는 답변에서 처음 나올 때 [[용어]]처럼 이중 대괄호로 감싸세요. 화면에서 그 용어의 위키 문서로 가는 파란 링크가 됩니다. 한 답변에 3~6개, 같은 용어는 한 번만.",
   "- 정답만 외우게 하지 말고, 왜 그런지(작동 원리·기준이 생긴 이유)를 한두 줄 꼭 덧붙여 처음 보는 문제에도 응용할 수 있게 하세요.",
   "- 문제은행 도구(search_questions, get_question, my_records)를 쓸 수 있으면: 학습자가 다른 문제·비슷한 기출·내가 틀린 문제를 물을 때, 또는 비교해 보면 이해가 쉬울 때 도구로 찾아 근거로 쓰세요. 지금 문제만 묻는 질문에는 도구를 쓰지 마세요.",
-  "- 다른 문제를 말할 때는 반드시 '작업형 2024년 3회 5번', '필기 출제예상 2회 4번'처럼 [영역 회차 N번] 형식 그대로 쓰세요. 화면에서 그 글자가 눌러서 이동하는 링크가 됩니다."
+  "- 다른 문제를 말할 때는 반드시 '필기 2024년 1회 5번'처럼 [필기 YYYY년 N회 N번] 형식 그대로 쓰세요. 화면에서 그 글자가 눌러서 이동하는 링크가 됩니다."
 ].join("\n");
 function questionBrief(q, set, rec){
   const L = [`[문제 자료] ${set.section} ${set.title} ${q.no}번 (${srcLabel(q.page || set.pages)})${q.img ? " · 사진 문제" : ""}`, `문제: ${q.prompt}`];
   if (q.ctx) L.push(`지문/소문항:\n${q.ctx}`);
   if (q.vnote) L.push(`동영상 설명: ${q.vnote}`);
+  if (q.choices){ q.choices.forEach((c, i) => L.push(`${"①②③④⑤"[i]} ${c}`)); const my = rec?.a?.[0]; if (my) L.push(`수험자가 고른 답: ${"①②③④⑤"[+my - 1]}`); }
+  if (q.exph) L.push(`해설(AI 작성·참고용): ${q.exph.replace(/<br\s*\/?>/g, "\n").replace(/<[^>]+>/g, "")}`);
   L.push("모범답안:");
   q.parts.forEach(p => { if (!p.pick) L.push(`- ${p.label}: ${p.answer}`); });
   poolLines(q).forEach(x => L.push(`- ${x}`));
@@ -1344,18 +1350,18 @@ const Chats = {
   async load(id){
     if (this.cache.has(id)) return this.cache.get(id);
     let msgs = [];
-    if (Store.db){ try { const d = await Store.db.doc(chatDoc(id)).get(); if (d.exists) msgs = clone((d.data() || {}).m) || []; } catch(e) {} }
+    msgs = (lsGet("gas-pilgi-chats", {}) || {})[id] || [];
     if (!this.cache.has(id)) this.cache.set(id, msgs);
     return this.cache.get(id);
   },
   save(id){
     const msgs = (this.cache.get(id) || []).slice(-30);
     this.cache.set(id, msgs);
-    if (Store.db) Store.db.doc(chatDoc(id)).set({m: msgs.map(({_img, ...m}) => m), u: Date.now()}).catch(() => toast("질문 기록을 저장하지 못했습니다."));
+    { const o = lsGet("gas-pilgi-chats", {}) || {}; o[id] = msgs.map(({_img, ...m}) => m); lsSet("gas-pilgi-chats", o); }
   },
   clear(id){
     this.cache.set(id, []);
-    if (Store.db) Store.db.doc(chatDoc(id)).delete().catch(() => {});
+    { const o = lsGet("gas-pilgi-chats", {}) || {}; delete o[id]; lsSet("gas-pilgi-chats", o); }
   }
 };
 
@@ -1375,10 +1381,12 @@ async function imgBlob(src){
 }
 const OFF_CODES = ["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"];
 function sampleErrorText(e){
+  if (e?.code === "auth_error") return "API 키가 맞지 않습니다. ⚙ 설정에서 키를 확인하세요.";
+  if (e?.code === "invalid_request" && /credit|balance/i.test(e?.message || "")) return "API 계정 크레딧이 부족합니다. Anthropic 콘솔에서 충전이 필요합니다.";
   if (e?.code === "timeout") return "Claude 채점 응답이 없습니다(사용량을 다 썼을 수 있어요).";
   if (e?.code === "rate_limited") return "Claude 사용량 한도에 걸렸습니다. 잠시 뒤 다시 시도하세요.";
   if (e?.code === "not_granted") return "Claude 사용을 허용하지 않아 이 기능이 꺼졌습니다. 페이지를 다시 열면 다시 물어봅니다.";
-  if (OFF_CODES.includes(e?.code) || e?.code === "unavailable") return "이 화면에서는 Claude를 쓸 수 없습니다. Claude 앱에서 열면 질문·AI 채점이 됩니다.";
+  if (OFF_CODES.includes(e?.code) || e?.code === "unavailable") return "Claude를 쓰려면 ⚙ 설정에서 API 키를 넣으세요.";
   if (e?.code === "session_expired") return "로그인이 만료되었습니다. 다시 로그인한 뒤 시도하세요.";
   if (e?.code === "refused") return "Claude가 이 질문에는 답하지 않았습니다. 질문을 바꿔 보세요.";
   if (e?.code === "prompt_too_large") return "대화가 너무 길어졌습니다. '대화 지우기' 후 다시 물어보세요.";
@@ -2248,7 +2256,7 @@ function renderSolve(){
       </form>
       <div id="res">${resBox(q, r, id)}</div>
     </div>
-    <div class="qbar"><button class="btn primary" id="grade" type="submit" form="f" ${q.choices ? "hidden" : ""}>채점</button><button class="btn" id="peek" type="button">정답 보기</button><span class="sp"></span><button class="btn" id="prev" ${session.i === 0 ? "disabled" : ""}>← 이전</button><button class="btn ${r?.v ? "primary" : ""}" id="next">${last ? (session.peek && jumpStack.length ? "풀던 문제로 →" : "결과 보기") : "다음 →"}</button></div>
+    <div class="qbar"><button class="btn primary" id="grade" type="submit" form="f" ${q.choices ? "hidden" : ""}>채점</button>${q.choices && r?.v && r.how !== "peek" ? "" : `<button class="btn" id="peek" type="button" aria-pressed="${r?.how === "peek"}">${r?.how === "peek" ? "정답 숨기기" : "정답 보기"}</button>`}<span class="sp"></span><button class="btn" id="prev" ${session.i === 0 ? "disabled" : ""}>← 이전</button><button class="btn ${r?.v ? "primary" : ""}" id="next">${last ? (session.peek && jumpStack.length ? "풀던 문제로 →" : "결과 보기") : "다음 →"}</button></div>
   </article>
   </div>
   </div>
@@ -2283,7 +2291,9 @@ function renderSolve(){
     e.target.closest(".field")?.classList.remove("f-정답", "f-부분정답", "f-오답");
     Drafts.set(id, q.parts.map((_, i) => $("a-" + i).value));
   });
-  $("peek").onclick = () => { const a = q.choices ? [] : q.parts.map((_, i) => $("a-" + i).value); showResult(id, record(id, {v:"확인", how:"peek", a, parts:[]})); };   // 정답 보기: 묻지 않고 바로 정답
+  if ($("peek")) $("peek").onclick = () => {
+    if (sres(id)?.how === "peek"){ delete session.res[id]; renderSolve(); return; }   // 정답 숨기기: 이번 풀이에서만 가림(본 기록은 남음)
+    const a = q.choices ? [] : q.parts.map((_, i) => $("a-" + i).value); record(id, {v:"확인", how:"peek", a, parts:[]}); const y = window.scrollY; renderSolve(); window.scrollTo(0, y); $("res")?.scrollIntoView({block:"nearest", behavior:"smooth"}); };   // 정답 보기: 묻지 않고 바로 정답
   bindSelf(id); bindChoices(id);
   document.querySelectorAll("#qtop .prompt, #qtop .ctx, #qtop .vnote").forEach(el => autoLink(el));
   autoLink($("res")); bindRefs($("res"));
@@ -2500,7 +2510,7 @@ function bankTools(curId){
   });
   return [
     {name: "search_questions",
-     description: "이 연습장의 문제은행(필기·작업형 852문제)에서 키워드로 문제를 찾습니다. 문제·지문·정답·이론 글에서 찾고, 일치가 많은 순으로 ref·이름·문제 앞부분·정답 요약·학습자 기록을 돌려줍니다. 키워드 없이 section/year/round만 주면 그 회차 목록을 돌려줍니다.",
+     description: "이 연습장의 문제은행(필기 기출 960문제)에서 키워드로 문제를 찾습니다. 문제·지문·정답·이론 글에서 찾고, 일치가 많은 순으로 ref·이름·문제 앞부분·정답 요약·학습자 기록을 돌려줍니다. 키워드 없이 section/year/round만 주면 그 회차 목록을 돌려줍니다.",
      inputSchema: {type: "object", properties: {
        query: {type: "string", description: "띄어쓰기로 나눈 키워드. 예: '방류둑 저장능력', '오리피스'"},
        section: {type: "string", enum: ["필기", "작업형"]},
@@ -2578,18 +2588,18 @@ function jumpReturn(){
 async function renderAsk(id){
   const box = $("ask"); if (!box) return;
   if (panelWiki) return renderWikiPanel();
-  box.innerHTML = ""; box.classList.remove("wikip"); return;
   box.classList.remove("wikip");
   if (sideMode === "note") return renderNote(id);
   box.setAttribute("aria-label", "Claude에게 묻기");
   const {q} = QI.get(id);
+  if (!sample){ box.innerHTML = `<header>${sideTabs()}</header>${wikiFindHTML()}<div class="keycard"><b>Claude에게 묻기</b><p>Anthropic API 키를 넣으면 이 칸에서 지금 문제를 물어볼 수 있어요(왜 이게 답인지, 외우는 요령, 비슷한 기출 찾기).</p><button class="btn primary sm" id="key-open" type="button">⚙ API 키 넣기</button><p class="small muted">키는 이 기기 브라우저에만 저장되고 Anthropic으로만 보내집니다.</p></div>`; bindSideTabs(id); bindWikiFind(); $("key-open").onclick = () => window.gpOpenSettings?.(); return; }
   box.innerHTML = `<header>${sideTabs()}<span style="flex:1"></span>${toolsOK ? `<button class="btn sm bank ${bankOn ? "on" : ""}" id="ask-bank" type="button" aria-pressed="${bankOn}" title="켜면 Claude가 다른 문제·내 기록까지 찾아봅니다. 답이 느려지고 사용량이 늘어 기본은 꺼 둡니다.">🔎 다른 문제 조회 ${bankOn ? "켬" : "끔"}</button>` : ""}<button class="btn ghost sm" id="ask-clear" type="button" hidden>대화 지우기</button></header>
-    <div class="msgs" id="msgs"><p class="small muted">이전 질문을 불러오는 중…</p></div>
+    ${wikiFindHTML()}<div class="msgs" id="msgs"><p class="small muted">이전 질문을 불러오는 중…</p></div>
     <div class="sugs" id="sugs">${SUGGEST.map(s => `<button type="button" data-sug="${esc(s)}">${esc(s)}</button>`).join("")}${toolsOK ? `<button type="button" data-sug="${esc(BANK_SUG)}" title="조회가 꺼져 있어도 이 질문 한 번만 다른 문제를 찾아봅니다">🔎 ${esc(BANK_SUG)}</button>` : ""}</div>
     <form class="askf" id="askf">${askPen() ? `<div class="askpad-wrap"><canvas class="notepad askpad" aria-label="손글씨 질문 칸"></canvas><span class="askpad-ph" id="askpad-ph"></span></div>` : `<textarea id="askq" placeholder="질문"></textarea>`}
       <div class="actions"><button class="btn primary" id="ask-send" type="submit">${askPen() ? "✍ 손글씨로 보내기" : "보내기"}</button>${askPen() ? `<button class="btn sm" id="askpad-undo" type="button">↶</button><button class="btn sm" id="askpad-clear" type="button">지우기</button>` : ""}<button class="btn" id="ask-stop" type="button" hidden>중지</button>${inkOn ? `<button class="btn ghost sm" id="ask-kbd" type="button">${askPen() ? "⌨ 키보드로" : "✍ 손글씨로"}</button>` : ""}</div></form>
     <p class="small muted" id="ask-note">${sampleOff ? esc(sampleErrorText({code:sampleOff})) : ""}</p>`;
-  bindSideTabs(id);
+  bindSideTabs(id); bindWikiFind();
   { const live = Chats.busy.get(id); if (live?.ctl) $("ask-stop").onclick = () => live.ctl.abort(); }
   if ($("ask-bank")) $("ask-bank").onclick = () => { bankOn = !bankOn; lsSet(BANK_KEY, bankOn); renderAsk(id); toast(bankOn ? "다른 문제 조회를 켰습니다. 필요할 때만 찾아보지만, 답이 조금 느려질 수 있어요." : "다른 문제 조회를 껐습니다. 지금 문제 자료만 보고 답합니다."); };
   if ($("ask-kbd")) $("ask-kbd").onclick = () => { askKbd = !askKbd; lsSet(ASK_KBD_KEY, askKbd); renderAsk(id); };
@@ -2865,7 +2875,7 @@ function wikiMissingHTML(t){
   return `<article class="wdoc"><h1>${esc(t)}</h1><div class="wmissing">
     ${g === "busy" ? `<p>Claude가 교재 자료로 문서를 쓰는 중입니다… (20~40초)</p>` : `<p>'${esc(t)}' 문서가 아직 없습니다.</p>
       <button class="btn primary" id="w-gen" ${sample && !sampleOff ? "" : "disabled"}>Claude에게 이 문서 쓰게 하기</button>
-      <p class="wnote">${sample && !sampleOff ? `관련 기출 ${rel.length}문제의 교재 정답·관련이론을 근거로 씁니다. 다 쓰면 공용 기록장에 저장돼 두 계정 모두 볼 수 있어요.` : "Claude 앱(또는 claude.ai)에서 열었을 때만 쓸 수 있습니다."}</p>`}
+      <p class="wnote">${sample && !sampleOff ? `관련 기출 ${rel.length}문제의 교재 정답·관련이론을 근거로 씁니다. 다 쓰면 이 기기에 저장됩니다.` : "⚙ 설정에서 API 키를 넣으면 쓸 수 있습니다."}</p>`}
     ${g && g !== "busy" ? `<p class="flag">${esc(g)}</p>` : ""}
   </div>
   ${rel.length ? `<section class="wsec"><h2>이 말이 나오는 문제</h2><div class="wq">${rel.map(id => `<button data-wq="${esc(id)}"><span class="meta">${esc(refName(id))}</span><span>${esc(QI.get(id).q.prompt)}</span></button>`).join("")}</div></section>` : ""}
@@ -3122,8 +3132,22 @@ function bindChoices(id){
     let r;
     if (cur?.v && cur.v !== "확인"){ r = record(id, {v, how:"self-edit", a:[String(n)], parts:[]}); r.how = "local"; Store.put(id, r); }
     else r = record(id, {v, how:"local", a:[String(n)], parts:[]});
-    draw(r); showResult(id, r);
+    const y = window.scrollY; renderSolve(); window.scrollTo(0, y); $("res")?.scrollIntoView({block:"nearest", behavior:"smooth"}); $("next")?.classList.add("primary");
   });
+}
+/* Claude 칸 위 '가스위키에서 찾기': 문서 이름(다른 이름 포함)으로 바로 열고, 없으면 제목·내용에 들어간 문서 목록 */
+const wikiFindHTML = () => `<form class="wfind" id="wfind"><input id="wfind-q" type="search" placeholder="가스위키에서 찾기 (예: 정압기, 방폭구조)" autocomplete="off"><button class="btn sm" type="submit">찾기</button></form><div class="wfind-hits" id="wfind-hits"></div>`;
+function bindWikiFind(){
+  const f = $("wfind"); if (!f) return;
+  f.onsubmit = e => {
+    e.preventDefault();
+    const t = $("wfind-q").value.trim(); if (!t) return;
+    if (Wiki.get(t)) return openWikiPanel(t);
+    const k = t.replace(/\s+/g, "").toLowerCase(), has = s => String(s || "").replace(/\s+/g, "").toLowerCase().includes(k);
+    const all = Wiki.all(), hits = [...all.filter(d => has(d.t) || (d.al || []).some(has)), ...all.filter(d => !(has(d.t) || (d.al || []).some(has)) && (has(d.sum) || has(d.body)))].slice(0, 12);
+    $("wfind-hits").innerHTML = hits.length ? hits.map(d => `<button type="button" class="btn sm" data-wf="${esc(d.t)}">${esc(d.t)}</button>`).join("") : `<span class="small muted">'${esc(t)}' 문서가 없습니다</span>`;
+    $("wfind-hits").querySelectorAll("[data-wf]").forEach(b => b.onclick = () => openWikiPanel(b.dataset.wf));
+  };
 }
 document.addEventListener("keydown", e => {
   if (view !== "solve" || !session || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || "")) return;
