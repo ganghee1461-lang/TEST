@@ -1,0 +1,148 @@
+{
+ "sets": [
+  {
+   "id": "f2025-2",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2025년 2회",
+   "year": 2025,
+   "round": 2,
+   "file": "data/f2025-2.json"
+  },
+  {
+   "id": "f2025-1",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2025년 1회",
+   "year": 2025,
+   "round": 1,
+   "file": "data/f2025-1.json"
+  },
+  {
+   "id": "f2024-2",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2024년 2회",
+   "year": 2024,
+   "round": 2,
+   "file": "data/f2024-2.json"
+  },
+  {
+   "id": "f2024-1",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2024년 1회",
+   "year": 2024,
+   "round": 1,
+   "file": "data/f2024-1.json"
+  },
+  {
+   "id": "f2023-2",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2023년 2회",
+   "year": 2023,
+   "round": 2,
+   "file": "data/f2023-2.json"
+  },
+  {
+   "id": "f2023-1",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2023년 1회",
+   "year": 2023,
+   "round": 1,
+   "file": "data/f2023-1.json"
+  },
+  {
+   "id": "f2022-2",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2022년 2회",
+   "year": 2022,
+   "round": 2,
+   "file": "data/f2022-2.json"
+  },
+  {
+   "id": "f2022-1",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2022년 1회",
+   "year": 2022,
+   "round": 1,
+   "file": "data/f2022-1.json"
+  },
+  {
+   "id": "f2021-2",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2021년 2회",
+   "year": 2021,
+   "round": 2,
+   "file": "data/f2021-2.json"
+  },
+  {
+   "id": "f2021-1",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2021년 1회",
+   "year": 2021,
+   "round": 1,
+   "file": "data/f2021-1.json"
+  },
+  {
+   "id": "f2020-2",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2020년 2회",
+   "year": 2020,
+   "round": 2,
+   "file": "data/f2020-2.json"
+  },
+  {
+   "id": "f2020-1",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2020년 1회",
+   "year": 2020,
+   "round": 1,
+   "file": "data/f2020-1.json"
+  },
+  {
+   "id": "f2019-2",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2019년 2회",
+   "year": 2019,
+   "round": 2,
+   "file": "data/f2019-2.json"
+  },
+  {
+   "id": "f2019-1",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2019년 1회",
+   "year": 2019,
+   "round": 1,
+   "file": "data/f2019-1.json"
+  },
+  {
+   "id": "f2018-2",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2018년 2회",
+   "year": 2018,
+   "round": 2,
+   "file": "data/f2018-2.json"
+  },
+  {
+   "id": "f2018-1",
+   "section": "필기",
+   "group": "기출문제",
+   "title": "2018년 1회",
+   "year": 2018,
+   "round": 1,
+   "file": "data/f2018-1.json"
+  }
+ ]
+}
